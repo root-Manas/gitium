@@ -4,6 +4,10 @@ import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 
 const handler = NextAuth({
+  // `as any` required: @auth/prisma-adapter v2 returns `Adapter` from
+  // "@auth/core/adapters", but next-auth v4 expects its own internal adapter
+  // type. The two are structurally compatible at runtime; the cast suppresses
+  // the compile-time mismatch until next-auth v5 unifies the adapter interface.
   adapter: PrismaAdapter(prisma) as any,
   providers: [
     GithubProvider({
