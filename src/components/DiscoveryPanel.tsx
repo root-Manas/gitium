@@ -37,7 +37,7 @@ export function DiscoveryPanel({ example }: { example: ProjectRecommendation[] }
   const visible = useMemo(() => sharedOnly ? projects.filter(item => item.starredBy.length > 1) : projects, [projects, sharedOnly]);
   const waiting = status === 'loading' || (!!userId && !result && !error);
 
-  return <section className="discovery-section" aria-labelledby="discovery-title">
+  return <section className="discovery-section" id="discover-projects" aria-labelledby="discovery-title">
     <div className="discovery-heading"><div><span className="eyebrow"><Compass size={12} /> FIND PROJECTS</span><h2 id="discovery-title">Found through people you follow</h2><p>See repositories people in your list have starred. Each card tells you who found it.</p></div><Link href="/explore">Find people <ArrowUpRight size={15} /></Link></div>
     <div className="discovery-toolbar"><span>{userId ? result ? `${result.sources} people · ${projects.length} projects` : 'Loading your list' : 'Example from public accounts'}</span><label><input type="checkbox" checked={sharedOnly} onChange={event => setSharedOnly(event.target.checked)} /> Starred by more than one person</label></div>
     {error && <p className="status-banner" role="status">{error}</p>}
