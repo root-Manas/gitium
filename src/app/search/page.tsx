@@ -1,162 +1,18 @@
-import { searchRepositories } from "@/lib/github";
-import Link from "next/link";
-import { Star, GitFork, Eye, Clock } from "lucide-react";
-import SearchForm from "./SearchForm";
+import { authEnabled } from '@/lib/auth';
+import { dbConfigured } from '@/lib/d1';
+import { getFollowedLogins } from '@/lib/follows';
+import { searchGitHub } from '@/lib/github';
+import { Shell } from '@/components/Shell';
+import { FollowButton } from '@/components/FollowButton';
+import { ArrowUpRight, Search, Star } from 'lucide-react';
+import Link from 'next/link';
 
-export default async function SearchPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ q?: string; page?: string }>;
-}) {
-  const params = await searchParams;
-  const query = params.q || "";
-  const page = parseInt(params.page || "1");
-
-  let results: any = null;
-  let error: string | null = null;
-
-  if (query) {
-    try {
-      results = await searchRepositories(query, page, 20);
-    } catch (err: any) {
-      error = err?.message || "Failed to search repositories";
-    }
-  }
-
-  const languageColors: Record<string, string> = {
-    TypeScript: "#3178c6",
-    JavaScript: "#f1e05a",
-    Python: "#3572A5",
-    Java: "#b07219",
-    Go: "#00ADD8",
-    Rust: "#dea584",
-    "C++": "#f34b7d",
-    C: "#555555",
-    Ruby: "#701516",
-    PHP: "#4F5D95",
-    Swift: "#F05138",
-    Kotlin: "#A97BFF",
-  };
-
-  return (
-    <div className="max-w-screen-xl mx-auto px-4 py-8">
-      <div className="mb-6">
-        <SearchForm initialQuery={query} />
-      </div>
-
-      {error && (
-        <div className="bg-[#161b22] border border-[#f85149] rounded-lg p-4 text-[#f85149] mb-6">
-          {error}
-        </div>
-      )}
-
-      {results && (
-        <>
-          <p className="text-[#8b949e] text-sm mb-4">
-            {results.total_count.toLocaleString()} repository results for &quot;{query}&quot;
-          </p>
-
-          <div className="space-y-3">
-            {results.items.map((repo: any) => (
-              <div
-                key={repo.id}
-                className="bg-[#161b22] border border-[#30363d] rounded-lg p-5 hover:border-[#58a6ff] transition-colors"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="min-w-0 flex-1">
-                    <Link
-                      href={`/${repo.owner.login}/${repo.name}`}
-                      className="text-[#58a6ff] font-semibold text-lg hover:underline"
-                    >
-                      {repo.owner.login}/{repo.name}
-                    </Link>
-                    {repo.description && (
-                      <p className="text-[#8b949e] mt-1 text-sm">{repo.description}</p>
-                    )}
-                    {repo.topics && repo.topics.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-2">
-                        {repo.topics.slice(0, 5).map((topic: string) => (
-                          <span
-                            key={topic}
-                            className="text-xs text-[#58a6ff] bg-[#388bfd1a] border border-[#58a6ff33] px-2 py-0.5 rounded-full"
-                          >
-                            {topic}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  {repo.owner?.avatar_url && (
-                    <Link href={`/${repo.owner.login}`}>
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={repo.owner.avatar_url}
-                        alt={repo.owner.login}
-                        className="w-8 h-8 rounded-full border border-[#30363d] ml-4"
-                      />
-                    </Link>
-                  )}
-                </div>
-                <div className="flex items-center gap-4 mt-3 text-sm text-[#8b949e]">
-                  {repo.language && (
-                    <span className="flex items-center gap-1">
-                      <span
-                        className="w-3 h-3 rounded-full"
-                        style={{ backgroundColor: languageColors[repo.language] || "#8b949e" }}
-                      />
-                      {repo.language}
-                    </span>
-                  )}
-                  <span className="flex items-center gap-1">
-                    <Star className="h-3.5 w-3.5" />
-                    {repo.stargazers_count.toLocaleString()}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <GitFork className="h-3.5 w-3.5" />
-                    {repo.forks_count.toLocaleString()}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Eye className="h-3.5 w-3.5" />
-                    {repo.watchers_count.toLocaleString()}
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Clock className="h-3.5 w-3.5" />
-                    Updated {new Date(repo.updated_at).toLocaleDateString()}
-                  </span>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Pagination */}
-          <div className="flex items-center justify-center gap-2 mt-8">
-            {page > 1 && (
-              <Link
-                href={`/search?q=${encodeURIComponent(query)}&page=${page - 1}`}
-                className="px-4 py-2 bg-[#21262d] border border-[#30363d] rounded-md text-sm text-[#c9d1d9] hover:border-[#58a6ff]"
-              >
-                ← Previous
-              </Link>
-            )}
-            <span className="text-[#8b949e] text-sm">Page {page}</span>
-            {results.items.length === 20 && (
-              <Link
-                href={`/search?q=${encodeURIComponent(query)}&page=${page + 1}`}
-                className="px-4 py-2 bg-[#21262d] border border-[#30363d] rounded-md text-sm text-[#c9d1d9] hover:border-[#58a6ff]"
-              >
-                Next →
-              </Link>
-            )}
-          </div>
-        </>
-      )}
-
-      {!query && (
-        <div className="text-center py-16 text-[#8b949e]">
-          <p className="text-lg">Enter a search query to find repositories</p>
-          <p className="text-sm mt-2">Try searching for &quot;react&quot; or &quot;machine learning&quot;</p>
-        </div>
-      )}
-    </div>
-  );
+export const metadata = { title: 'Search' };
+export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
+  const query = String((await searchParams).q || '').trim().slice(0, 80);
+  const [results, follows] = await Promise.all([searchGitHub(query).then(data => ({ ...data, unavailable: false })).catch(() => ({ users: [], repos: [], unavailable: true })), getFollowedLogins()]);
+  return <Shell authReady={authEnabled()} dataReady={dbConfigured()}><div className="wide-page"><div className="page-heading"><span className="eyebrow"><Search size={13} /> SEARCH GITHUB</span><h1>{query ? <>Results for <em>{query}</em><span>.</span></> : <>Find something good<span>.</span></>}</h1><p>People and public repositories from GitHub.</p></div>{results.unavailable && <p className="status-banner" role="status">GitHub search is unavailable right now. Try again later.</p>}
+    <div className="section-bar"><h2>People</h2><span>{results.users.length} RESULTS</span></div>{results.users.length ? <div className="explore-people">{results.users.map(person => <article className="explore-person" key={person.login}><img src={person.avatar_url} alt="" /><div><Link href={`/u/${person.login}`}>{person.login} <ArrowUpRight size={14} /></Link><p>GitHub profile</p></div><FollowButton login={person.login} initial={follows.includes(person.login.toLowerCase())} enabled={dbConfigured()} /></article>)}</div> : <p className="empty-row">No people found.</p>}
+    <div className="section-bar"><h2>Repositories</h2><span>{results.repos.length} RESULTS</span></div>{results.repos.length ? <div className="repo-grid">{results.repos.map(repo => <a className="repo-card" href={repo.html_url} key={repo.id} target="_blank" rel="noopener noreferrer"><div><img src={repo.owner.avatar_url} alt="" /><ArrowUpRight size={18} /></div><h3>{repo.full_name}</h3><p>{repo.description || 'No description provided.'}</p><footer><span>{repo.language || 'Repository'}</span><span><Star size={14} /> {repo.stargazers_count.toLocaleString()}</span></footer></a>)}</div> : <p className="empty-row">No repositories found.</p>}
+  </div></Shell>;
 }

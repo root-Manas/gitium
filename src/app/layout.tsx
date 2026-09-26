@@ -1,31 +1,13 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import Header from "@/components/Header";
-import SessionProvider from "@/components/SessionProvider";
-import { getServerSession } from "next-auth";
+import type { Metadata } from 'next';
+import { SessionProvider } from '@/components/SessionProvider';
+import './globals.css';
 
 export const metadata: Metadata = {
-  title: "Gitium - GitHub Social Platform",
-  description: "A social platform for GitHub repositories with premium analytics and community discussions",
+  title: { default: 'Gitium — GitHub activity in one feed', template: '%s · Gitium' },
+  description: 'Follow public GitHub activity, read your GitHub timeline, and save useful work in one web app.',
+  openGraph: { title: 'Gitium', description: 'GitHub activity in one feed.', type: 'website' }
 };
 
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const session = await getServerSession();
-
-  return (
-    <html lang="en" className="dark">
-      <body className="bg-[#0d1117] text-[#c9d1d9] min-h-screen">
-        <SessionProvider session={session}>
-          <Header />
-          <main className="min-h-[calc(100vh-64px)]">
-            {children}
-          </main>
-        </SessionProvider>
-      </body>
-    </html>
-  );
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
+  return <html lang="en"><body><SessionProvider>{children}</SessionProvider></body></html>;
 }

@@ -1,0 +1,29 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import { normalizeEvent, validLogin } from '../src/lib/github.ts';
+
+const base = {
+  id: '123456789', public: true, type: 'PullRequestEvent', created_at: '2026-09-27T10:00:00Z',
+  actor: { login: 'manas', avatar_url: 'https://avatars.githubusercontent.com/u/1' },
+  repo: { name: 'owner/repository' },
+  payload: { action: 'opened', pull_request: { number: 42, title: 'Fix parsing', html_url: 'https://github.com/owner/repository/pull/42' } }
+};
+
+test('normalizes a GitHub event into a safe feed item', () => {
+  const event = normalizeEvent(base);
+  assert.equal(event.actor, 'manas');
+  assert.equal(event.detail, 'Fix parsing');
+  assert.equal(event.url, 'https://github.com/owner/repository/pull/42');
+  assert.equal(event.isPrivate, false);
+  assert.equal(normalizeEvent({ ...base, public: false }), null);
+  assert.equal(normalizeEvent({ ...base, public: false }, true)?.isPrivate, true);
+  assert.equal(normalizeEvent({ ...base, payload: { ...base.payload, pull_request: { ...base.payload.pull_request, html_url: 'https://bad.example/' } } })?.url, 'https://github.com/owner/repository');
+});
+
+test('validates GitHub logins and keeps D1 limited to identity and connections', () => {
+  assert.equal(validLogin('root-Manas'), true);
+  assert.equal(validLogin('../admin'), false);
+  const schema = fs.readFileSync(new URL('../schema.sql', import.meta.url), 'utf8');
+  assert.deepEqual([...schema.matchAll(/CREATE TABLE IF NOT EXISTS (\w+)/g)].map(match => match[1]), ['users', 'follows']);
+});
