@@ -1,6 +1,6 @@
 # Gitium
 
-A web feed for the work people do on GitHub. Browse public activity, sign in to read your GitHub timeline, follow accounts inside Gitium, and keep useful items in this browser.
+A review queue for the work people do on GitHub. Sign in to read your GitHub timeline, follow accounts inside Gitium, and sort updates before opening the ones that matter.
 
 ![Gitium feed](docs/preview.png)
 
@@ -9,6 +9,7 @@ A web feed for the work people do on GitHub. Browse public activity, sign in to 
 - **My GitHub:** reads your received events from GitHub with your OAuth access token. The token stays in an encrypted, HTTP-only session cookie; it is not saved in Cloudflare D1 or sent to the browser in the session response.
 - **Following:** reads recent public events from GitHub accounts you follow in Gitium.
 - **Discover:** shows public activity and repositories. Browsing works before sign-in.
+- **Review queue:** narrow any feed to pull requests, releases, issues, commits, or a repository. Mark individual updates or everything visible as read. The New view hides read items; All brings them back.
 - **Explore and search:** find GitHub users and public repositories.
 - **Saved:** keeps up to 100 activity items in your browser's local storage. These do not follow you to other devices.
 - **Open on GitHub:** takes you to the actual commit, issue, pull request, release, or repository. Discussion remains on GitHub.
@@ -23,7 +24,7 @@ GitHub's Events API is not real time; GitHub says events can arrive **30 seconds
 | Data API | Cloudflare Worker Free | Private bridge from the Vercel server to D1 |
 | Social data | Cloudflare D1 Free | GitHub user ID, login, avatar URL, last sign-in, Gitium follow connections |
 | Activity, profiles, repositories | GitHub REST API | Read on request; never written to D1 |
-| Saved items | Browser local storage | Private to that browser |
+| Saved and read items | Browser local storage | Private to that browser; read items are scoped to your GitHub account on that browser |
 
 There is no paid API, queue, scheduled job, or database of GitHub events. Cloudflare D1 is the only server-side database.
 
