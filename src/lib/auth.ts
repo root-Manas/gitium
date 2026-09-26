@@ -5,7 +5,7 @@ import { queryD1, dbConfigured } from './d1';
 export const authEnabled = () => !!(process.env.GITHUB_ID && process.env.GITHUB_SECRET && process.env.NEXTAUTH_SECRET);
 
 export const authOptions: NextAuthOptions = {
-  providers: [GitHubProvider({ clientId: process.env.GITHUB_ID || 'not-configured', clientSecret: process.env.GITHUB_SECRET || 'not-configured', authorization: { params: { scope: 'read:user' } } })],
+  providers: [GitHubProvider({ clientId: process.env.GITHUB_ID || 'not-configured', clientSecret: process.env.GITHUB_SECRET || 'not-configured', authorization: { params: { scope: 'read:user user:follow' } } })],
   session: { strategy: 'jwt' },
   secret: process.env.NEXTAUTH_SECRET || (process.env.NODE_ENV === 'development' ? 'local-development-only-change-me' : undefined),
   callbacks: {
