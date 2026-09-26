@@ -14,11 +14,16 @@ export async function GET(request: NextRequest) {
     const repo = await githubGet<Repo>(path, 300);
     if (repo.private) return json({ error: 'Only public repositories are shown.' }, 403);
     const commits = await githubGet<Commit[]>(`${path}/commits?per_page=100`, 300);
-    const days = Object.entries(commits.reduce<Record<string, number>>((counts, item) => {
+    const counts = commits.reduce<Record<string, number>>((counts, item) => {
       const date = item.commit.author?.date?.slice(0, 10);
       if (date) counts[date] = (counts[date] || 0) + 1;
       return counts;
-    }, {})).sort(([a], [b]) => a.localeCompare(b)).map(([date, count]) => ({ date, count }));
+    }, {});
+    const today = new Date();
+    const days = Array.from({ length: 60 }, (_, index) => {
+      const date = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate() - 59 + index)).toISOString().slice(0, 10);
+      return { date, count: counts[date] || 0 };
+    });
     const authors = Object.entries(commits.reduce<Record<string, number>>((counts, item) => {
       const login = item.author?.login || item.commit.author?.name || 'Unknown';
       counts[login] = (counts[login] || 0) + 1;
