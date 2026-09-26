@@ -5,9 +5,9 @@ import { FollowButton } from './FollowButton';
 
 const people = [
   { login: 'sindresorhus', detail: 'Open source maintainer' },
-  { login: 'shadcn', detail: 'UI tools and components' },
-  { login: 'vercel', detail: 'Web platform' },
-  { login: 'cloudflare', detail: 'Internet infrastructure' }
+  { login: 'jessfraz', detail: 'Systems and open source' },
+  { login: 'tj', detail: 'Developer tools' },
+  { login: 'shadcn', detail: 'Interfaces and tools' }
 ];
 
 export function Sidebar({ repos, follows, socialReady }: { repos: GitHubRepo[]; follows: string[]; socialReady: boolean }) {

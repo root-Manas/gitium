@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   try {
     const tab = new URL(request.url).searchParams.get('tab');
     if (tab === 'following') {
-      if (!dbConfigured()) return json({ events: [], error: 'Cloudflare D1 is not connected yet.' }, 503);
+      if (!dbConfigured()) return json({ events: [], error: 'Following is temporarily unavailable.' }, 503);
       const rows = await queryD1<{ github_login: string }>('SELECT github_login FROM follows WHERE user_id=? ORDER BY created_at DESC LIMIT 12', [String(token?.githubId || token?.sub || '')]);
       const feed = await getFeed(rows.map(row => row.github_login), accessToken);
       return json(feed);

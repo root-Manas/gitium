@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import { normalizeEvent, validLogin } from '../src/lib/github.ts';
+import { normalizeEvent, rankRecommendations, validLogin } from '../src/lib/github.ts';
 
 const base = {
   id: '123456789', public: true, type: 'PullRequestEvent', created_at: '2026-09-27T10:00:00Z',
@@ -26,4 +26,15 @@ test('validates GitHub logins and keeps D1 limited to identity and connections',
   assert.equal(validLogin('../admin'), false);
   const schema = fs.readFileSync(new URL('../schema.sql', import.meta.url), 'utf8');
   assert.deepEqual([...schema.matchAll(/CREATE TABLE IF NOT EXISTS (\w+)/g)].map(match => match[1]), ['users', 'follows']);
+});
+
+test('recommends overlap from followed people and excludes projects already starred by the user', () => {
+  const repo = (id, stars, owner = 'other') => ({ id, full_name: `${owner}/repo-${id}`, description: null, html_url: `https://github.com/${owner}/repo-${id}`, language: 'TypeScript', stargazers_count: stars, forks_count: 0, owner: { login: owner, avatar_url: '' } });
+  const ranked = rankRecommendations([
+    { login: 'alice', repos: [repo(1, 500), repo(2, 5), repo(3, 50, 'alice')] },
+    { login: 'bob', repos: [repo(1, 500), repo(4, 20)] },
+    { login: 'carol', repos: [repo(1, 500), repo(2, 5)] }
+  ], new Set([4]));
+  assert.deepEqual(ranked.map(item => item.repo.id), [1, 2]);
+  assert.deepEqual(ranked[0].starredBy, ['alice', 'bob', 'carol']);
 });

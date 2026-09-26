@@ -17,7 +17,7 @@ export async function currentUser() {
   return session?.user?.id ? session.user : null;
 }
 
-export function requireD1() { return dbConfigured() ? null : json({ error: 'Social features need Cloudflare D1 setup.' }, 503); }
+export function requireD1() { return dbConfigured() ? null : json({ error: 'Following is temporarily unavailable.' }, 503); }
 
 export function apiError(error: unknown) {
   console.error('Gitium API:', error);

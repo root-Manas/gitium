@@ -18,8 +18,9 @@ export function FollowButton({ login, initial, enabled }: { login: string; initi
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Could not update follow.');
       setFollowing(!following);
+      window.dispatchEvent(new Event('gitium-follow-change'));
     } catch (problem) { setError(problem instanceof Error ? problem.message : 'Try again.'); }
     finally { setBusy(false); }
   }
-  return <span className="follow-wrap"><button type="button" className={`follow-btn ${following ? 'is-following' : ''}`} disabled={busy || !enabled} onClick={toggle} title={!enabled ? 'Connect Cloudflare D1 to use follows' : undefined}>{following ? <Check size={15} /> : <Plus size={15} />}{following ? 'Following' : 'Follow'}</button>{error && <span className="inline-error" role="alert">{error}</span>}</span>;
+  return <span className="follow-wrap"><button type="button" className={`follow-btn ${following ? 'is-following' : ''}`} disabled={busy || !enabled} onClick={toggle} title={!enabled ? 'Following is temporarily unavailable' : undefined}>{following ? <Check size={15} /> : <Plus size={15} />}{following ? 'Following' : 'Follow'}</button>{error && <span className="inline-error" role="alert">{error}</span>}</span>;
 }

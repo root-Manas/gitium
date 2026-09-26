@@ -13,6 +13,7 @@ export type FeedEvent = {
 
 export type GitHubUser = { login: string; avatar_url: string; html_url: string; bio?: string | null; public_repos?: number; followers?: number };
 export type GitHubRepo = { id: number; full_name: string; description: string | null; html_url: string; language: string | null; stargazers_count: number; forks_count: number; owner: { login: string; avatar_url: string } };
+export type ProjectRecommendation = { repo: GitHubRepo; starredBy: string[] };
 
 type RawEvent = {
   id: string; type: string; created_at: string; public: boolean;
@@ -139,4 +140,36 @@ export async function getTrendingRepos(): Promise<GitHubRepo[]> {
   const date = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
   const data = await githubGet<{ items: GitHubRepo[] }>(`/search/repositories?q=${encodeURIComponent(`created:>${date} stars:>20`)}&sort=stars&order=desc&per_page=6`, 3600);
   return data.items;
+}
+
+export function rankRecommendations(lists: { login: string; repos: GitHubRepo[] }[], ownStarred = new Set<number>()): ProjectRecommendation[] {
+  const projects = new Map<number, { item: ProjectRecommendation; firstPosition: number }>();
+  for (const { login, repos } of lists) for (const [position, repo] of repos.entries()) {
+    if (!repo?.id || !/^[-\w.]+\/[-\w.]+$/.test(repo.full_name || '') || ownStarred.has(repo.id) || repo.owner?.login?.toLowerCase() === login.toLowerCase()) continue;
+    const existing = projects.get(repo.id);
+    if (existing) {
+      if (!existing.item.starredBy.some(source => source.toLowerCase() === login.toLowerCase())) existing.item.starredBy.push(login);
+      existing.firstPosition = Math.min(existing.firstPosition, position);
+    } else projects.set(repo.id, { item: { repo, starredBy: [login] }, firstPosition: position });
+  }
+  const all = [...projects.values()];
+  const shared = all.filter(entry => entry.item.starredBy.length > 1).sort((a, b) => b.item.starredBy.length - a.item.starredBy.length || a.firstPosition - b.firstPosition);
+  const buckets = lists.map(({ login }) => all.filter(entry => entry.item.starredBy.length === 1 && entry.item.starredBy[0].toLowerCase() === login.toLowerCase()).sort((a, b) => a.firstPosition - b.firstPosition));
+  const singles: typeof all = [];
+  for (let position = 0; shared.length + singles.length < 12 && buckets.some(bucket => position < bucket.length); position++) {
+    for (const bucket of buckets) if (bucket[position]) singles.push(bucket[position]);
+  }
+  return [...shared, ...singles].slice(0, 12).map(entry => entry.item);
+}
+
+export async function discoverFromPeople(logins: string[], ownLogin?: string, token?: string): Promise<{ projects: ProjectRecommendation[]; sources: number; failed: number }> {
+  const unique = [...new Set(logins.map(login => login.toLowerCase()))].filter(validLogin).slice(0, 12);
+  const results = await Promise.allSettled(unique.map(login => githubGet<GitHubRepo[]>(`/users/${encodeURIComponent(login)}/starred?per_page=100`, 1800, token)));
+  let ownStarred = new Set<number>();
+  if (ownLogin && validLogin(ownLogin)) {
+    try { ownStarred = new Set((await githubGet<GitHubRepo[]>(`/users/${encodeURIComponent(ownLogin)}/starred?per_page=100`, 1800, token)).map(repo => repo.id)); }
+    catch { /* Recommendations still work if GitHub cannot load your stars. */ }
+  }
+  const lists = results.flatMap((result, index) => result.status === 'fulfilled' ? [{ login: unique[index], repos: result.value }] : []);
+  return { projects: rankRecommendations(lists, ownStarred), sources: lists.length, failed: unique.length - lists.length };
 }

@@ -11,9 +11,9 @@ import Link from 'next/link';
 export const metadata = { title: 'Explore' };
 const people = [
   { login: 'sindresorhus', subtitle: 'Building and maintaining open source' },
-  { login: 'shadcn', subtitle: 'Interfaces, tooling, and open work' },
-  { login: 'vercel', subtitle: 'The web platform' },
-  { login: 'cloudflare', subtitle: 'Internet infrastructure' },
+  { login: 'jessfraz', subtitle: 'Systems and open source' },
+  { login: 'tj', subtitle: 'Developer tools' },
+  { login: 'shadcn', subtitle: 'Interfaces and tools' },
   { login: 'microsoft', subtitle: 'Open source at scale' },
   { login: 'github', subtitle: 'Where code happens' }
 ];

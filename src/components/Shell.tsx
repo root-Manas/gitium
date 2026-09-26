@@ -22,8 +22,8 @@ export function Shell({ children, authReady, dataReady }: { children: React.Reac
         <div className="rail-section-label">YOUR SPACE</div>
         <nav className="main-nav" aria-label="Main navigation"><Link className={pathname === '/' ? 'active' : ''} href="/"><Home size={19} /> Feed</Link><Link className={pathname === '/explore' || pathname === '/search' ? 'active' : ''} href="/explore"><Compass size={19} /> Explore</Link><Link className={pathname === '/saved' ? 'active' : ''} href="/saved"><Bookmark size={19} /> Saved</Link></nav>
         <div className="rail-rule" />
-        <div className="rail-note"><span className="note-spark"><Sparkles size={18} /></span><strong>Use the queue</strong><p>Filter updates, mark them read, and save links you want to return to.</p></div>
-        <div className="rail-footer">{!dataReady && <p>Social features are waiting for Cloudflare D1 setup.</p>}<span>Gitium · built around GitHub</span><a href="https://github.com/root-Manas/gitium" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a></div>
+        <div className="rail-note"><span className="note-spark"><Sparkles size={18} /></span><strong>Find projects through people.</strong><p>Follow accounts in Explore. Gitium shows the repositories they star.</p></div>
+        <div className="rail-footer">{!dataReady && <p>Following is unavailable right now.</p>}<span>Gitium</span><a href="https://github.com/root-Manas/gitium" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a></div>
       </div></aside>
       <main className="main-column">{children}</main>
     </div>
