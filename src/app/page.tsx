@@ -16,7 +16,7 @@ export default async function Home() {
     getFollowedLogins()
   ]);
   return <Shell authReady={authEnabled()} dataReady={dbConfigured()}><div className="content-grid"><div className="feed-column">
-    <section className="hero"><div className="hero-top"><span className="hero-label"><span className="tiny-orbit">✳</span> GITHUB, SORTED</span><span className="hero-no">FOLLOW / FILTER / CLEAR</span></div><h1>See what<br /><em>changed.</em></h1><p>Follow people, filter updates by kind or repository, and clear each item once you&apos;ve read it.</p><LoginButton authReady={authEnabled()} /></section>
+    <section className="hero"><div className="hero-top"><span className="hero-label"><span className="tiny-orbit">✳</span> GITHUB, SORTED</span><span className="hero-no">FOLLOW / FILTER / CLEAR</span></div><h1>See what <em>changed.</em></h1><p>Follow people, filter updates by kind or repository, and clear each item once you&apos;ve read it.</p><LoginButton authReady={authEnabled()} /></section>
     <FeedView discover={feed.events} authReady={authEnabled()} />
   </div><Sidebar repos={trending} follows={follows} socialReady={dbConfigured()} /></div></Shell>;
 }
