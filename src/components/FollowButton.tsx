@@ -22,5 +22,5 @@ export function FollowButton({ login, initial, enabled }: { login: string; initi
     } catch (problem) { setError(problem instanceof Error ? problem.message : 'Try again.'); }
     finally { setBusy(false); }
   }
-  return <span className="follow-wrap"><button type="button" className={`follow-btn ${following ? 'is-following' : ''}`} disabled={busy || !enabled} onClick={toggle} title={!enabled ? 'Following is temporarily unavailable' : undefined}>{following ? <Check size={15} /> : <Plus size={15} />}{following ? 'Following' : 'Follow'}</button>{error && <span className="inline-error" role="alert">{error}</span>}</span>;
+  return <span className="follow-wrap"><button type="button" className={`follow-btn ${following ? 'is-following' : ''}`} disabled={busy || !enabled} onClick={toggle} title={!enabled ? 'Adding people is temporarily unavailable' : following ? 'Remove from your Gitium list' : 'Add to your Gitium list'}>{following ? <Check size={15} /> : <Plus size={15} />}{following ? 'Added' : 'Add'}</button>{error && <span className="inline-error" role="alert">{error}</span>}</span>;
 }

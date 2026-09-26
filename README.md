@@ -6,7 +6,7 @@ Gitium helps you find projects through people you follow. It looks at their rece
 
 ## What it does
 
-- **Find projects:** follow people you trust and see the repositories they recently starred. Projects starred by several people appear first. Gitium filters out projects in your most recent stars.
+- **Find projects:** Gitium starts with the people you already follow on GitHub. You can add more people inside Gitium without changing your GitHub account. It shows their recent stars, puts shared picks first, and filters out projects in your most recent stars.
 - **Know why a project appeared:** each card names the people in your list who starred it. There is no generated summary or opaque score.
 - **Catch up:** read recent work from your GitHub timeline or the people you follow. Filter by update type or repository and mark items read.
 - **Search and save:** find people to follow and keep useful links in your browser.
@@ -16,7 +16,7 @@ GitHub's Events API is not real time; GitHub says events can arrive **30 seconds
 
 ## Your data
 
-Gitium stores your GitHub user ID, login, avatar URL, last sign-in time, and the accounts you follow inside Gitium. It fetches stars, profiles, and activity from GitHub when you use the site; it does not copy them into its database. Saved links and read status stay in your browser. Your GitHub access token stays in an encrypted, HTTP-only session cookie and is not included in the browser session response.
+Gitium stores your GitHub user ID, login, avatar URL, last sign-in time, and people you add inside Gitium. It reads your existing GitHub follows, stars, profiles, and activity from GitHub when you use the site; it does not copy them into its database. Saved links and read status stay in your browser. Your GitHub access token stays in an encrypted, HTTP-only session cookie and is not included in the browser session response.
 
 ## Local setup
 

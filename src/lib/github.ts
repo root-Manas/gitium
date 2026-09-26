@@ -125,6 +125,12 @@ export async function getUser(login: string, token?: string): Promise<GitHubUser
   return githubGet<GitHubUser>(`/users/${encodeURIComponent(login)}`, 300, token);
 }
 
+export async function getGitHubFollowing(login: string, token: string): Promise<string[]> {
+  if (!validLogin(login) || !token) return [];
+  const users = await githubGet<{ login: string }[]>(`/users/${encodeURIComponent(login)}/following?per_page=100`, 0, token);
+  return users.map(user => user.login).filter(validLogin);
+}
+
 export async function searchGitHub(query: string): Promise<{ users: GitHubUser[]; repos: GitHubRepo[] }> {
   const clean = query.trim().slice(0, 80);
   if (!clean) return { users: [], repos: [] };

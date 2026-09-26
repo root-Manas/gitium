@@ -1,8 +1,8 @@
 import { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { apiError, json } from '@/lib/api';
-import { dbConfigured, queryD1 } from '@/lib/d1';
 import { getFeed, getReceivedEvents } from '@/lib/github';
+import { getNetworkLogins } from '@/lib/follows';
 
 export async function GET(request: NextRequest) {
   const token = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
@@ -12,9 +12,8 @@ export async function GET(request: NextRequest) {
   try {
     const tab = new URL(request.url).searchParams.get('tab');
     if (tab === 'following') {
-      if (!dbConfigured()) return json({ events: [], error: 'Following is temporarily unavailable.' }, 503);
-      const rows = await queryD1<{ github_login: string }>('SELECT github_login FROM follows WHERE user_id=? ORDER BY created_at DESC LIMIT 12', [String(token?.githubId || token?.sub || '')]);
-      const feed = await getFeed(rows.map(row => row.github_login), accessToken);
+      const network = await getNetworkLogins(String(token?.githubId || token?.sub || ''), login, accessToken);
+      const feed = await getFeed(network.logins, accessToken);
       return json(feed);
     }
     const events = await getReceivedEvents(login, accessToken);
