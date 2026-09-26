@@ -5,10 +5,11 @@ import { queryD1 } from '@/lib/d1';
 import { cleanBody, parseSpace, SpaceItem } from '@/lib/spaces';
 
 export async function GET(request: NextRequest) {
-  const user = await currentUser(); if (!user) return json({ error: 'Sign in with GitHub to chat.' }, 401);
   const unavailable = requireD1(); if (unavailable) return unavailable;
   const url = new URL(request.url);
-  const space = parseSpace(url.searchParams.get('scope'), url.searchParams.get('target'), user.githubLogin);
+  const user = await currentUser();
+  if (url.searchParams.get('scope') === 'dm' && !user) return json({ error: 'Sign in with GitHub to read direct messages.' }, 401);
+  const space = parseSpace(url.searchParams.get('scope'), url.searchParams.get('target'), user?.githubLogin || '');
   if (!space || space.scope === 'user') return json({ error: 'Choose a direct, repository, or organization chat.' }, 400);
   try {
     const messages = await queryD1<SpaceItem>('SELECT id,scope,target,author_login,body,created_at FROM messages WHERE scope=? AND target=? ORDER BY created_at DESC LIMIT 100', [space.scope, space.target]);
