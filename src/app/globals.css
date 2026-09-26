@@ -19,3 +19,6 @@
 @media(max-width:700px){.discovery-section{margin-top:23px}.discovery-heading{align-items:start}.discovery-heading h2{font-size:21px}.discovery-heading>a{font-size:10px}.discovery-toolbar{flex-wrap:wrap;gap:8px}.discovery-grid{grid-template-columns:1fr}.discovery-card>p{min-height:0}.discovery-section+.feed-section{margin-top:33px}}
 .discovery-more{display:block;margin:12px auto 0;border:1px solid var(--line);border-radius:8px;background:white;color:var(--ink);font-size:11px;font-weight:700;padding:9px 14px}.discovery-more:hover{border-color:#c9c2e7;color:var(--accent)}
 .discovery-section{scroll-margin-top:94px}
+.discovery-layout{display:block}.discovery-layout .feed-column{max-width:none}.discovery-layout .discovery-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.discovery-layout .feed-section{max-width:900px}
+@media(max-width:1050px){.discovery-layout .discovery-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){.discovery-layout .discovery-grid{grid-template-columns:1fr}}

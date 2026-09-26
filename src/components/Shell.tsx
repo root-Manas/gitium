@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { signIn, signOut, useSession } from 'next-auth/react';
-import { Bookmark, Compass, Github, Home, LogOut, Search, Sparkles } from 'lucide-react';
+import { Bookmark, Compass, Github, Home, LogOut, Search } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
@@ -21,8 +21,6 @@ export function Shell({ children, authReady, dataReady }: { children: React.Reac
       <aside className="left-rail"><div className="rail-sticky">
         <div className="rail-section-label">YOUR SPACE</div>
         <nav className="main-nav" aria-label="Main navigation"><Link className={pathname === '/' ? 'active' : ''} href="/"><Home size={19} /> Feed</Link><Link className={pathname === '/explore' || pathname === '/search' ? 'active' : ''} href="/explore"><Compass size={19} /> Explore</Link><Link className={pathname === '/saved' ? 'active' : ''} href="/saved"><Bookmark size={19} /> Saved</Link></nav>
-        <div className="rail-rule" />
-        <div className="rail-note"><span className="note-spark"><Sparkles size={18} /></span><strong>Find projects through people.</strong><p>Follow accounts in Explore. Gitium shows the repositories they star.</p></div>
         <div className="rail-footer">{!dataReady && <p>Following is unavailable right now.</p>}<span>Gitium</span><a href="https://github.com/root-Manas/gitium" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a></div>
       </div></aside>
       <main className="main-column">{children}</main>
