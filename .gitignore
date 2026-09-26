@@ -26,6 +26,8 @@ yarn-error.log*
 # Local env files
 .env
 .env*.local
+.dev.vars
+.wrangler/
 
 # Vercel
 .vercel
@@ -37,3 +39,4 @@ next-env.d.ts
 # Prisma
 /prisma/*.db
 /prisma/*.db-journal
+.env*

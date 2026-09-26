@@ -1,13 +1,13 @@
 type D1Response<T> = { success: boolean; errors?: { message: string }[]; result?: { success: boolean; results?: T[] }[] };
 
-export const dbConfigured = () => !!(process.env.CF_ACCOUNT_ID && process.env.CF_D1_DATABASE_ID && process.env.CF_D1_API_TOKEN);
+export const dbConfigured = () => !!(process.env.CF_D1_WORKER_URL && process.env.CF_D1_SERVICE_TOKEN);
 
 export async function queryD1<T>(sql: string, params: (string | number)[] = []): Promise<T[]> {
   if (!dbConfigured()) throw new Error('Cloudflare D1 is not configured.');
-  const { CF_ACCOUNT_ID, CF_D1_DATABASE_ID, CF_D1_API_TOKEN } = process.env;
-  const response = await fetch(`https://api.cloudflare.com/client/v4/accounts/${CF_ACCOUNT_ID}/d1/database/${CF_D1_DATABASE_ID}/query`, {
+  const { CF_D1_WORKER_URL, CF_D1_SERVICE_TOKEN } = process.env;
+  const response = await fetch(`${CF_D1_WORKER_URL?.replace(/\/$/, '')}/query`, {
     method: 'POST',
-    headers: { Authorization: `Bearer ${CF_D1_API_TOKEN}`, 'Content-Type': 'application/json' },
+    headers: { Authorization: `Bearer ${CF_D1_SERVICE_TOKEN}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ sql, params: params.map(String) }),
     cache: 'no-store'
   });
