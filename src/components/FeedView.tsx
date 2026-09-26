@@ -89,9 +89,16 @@ export function FeedView({ discover, authReady }: { discover: FeedEvent[]; authR
     saveReviewed(new Set([...reviewed, ...visible.map(event => event.id)]));
   }
 
+  function chooseTab(next: Tab) {
+    setTab(next);
+    setKind('all');
+    setRepo('');
+    setView('new');
+  }
+
   return <section className="feed-section" id="queue">
     <div className="feed-title-row"><div><span className="eyebrow"><Radio size={12} /> ACTIVITY INBOX</span><h2>Updates to review</h2></div><span className="feed-count">{newCount} new / {events.length} total</span></div>
-    <div className="feed-tabs" role="tablist" aria-label="Feed source"><button role="tab" aria-selected={tab === 'github'} className={tab === 'github' ? 'active' : ''} onClick={() => session ? setTab('github') : signIn('github')} disabled={status === 'loading' || (!session && !authReady)}>My GitHub</button><button role="tab" aria-selected={tab === 'following'} className={tab === 'following' ? 'active' : ''} onClick={() => session ? setTab('following') : signIn('github')} disabled={status === 'loading' || (!session && !authReady)}>Following</button><button role="tab" aria-selected={tab === 'discover'} className={tab === 'discover' ? 'active' : ''} onClick={() => setTab('discover')}>Discover</button></div>
+    <div className="feed-tabs" role="tablist" aria-label="Feed source"><button role="tab" aria-selected={tab === 'github'} className={tab === 'github' ? 'active' : ''} onClick={() => session ? chooseTab('github') : signIn('github')} disabled={status === 'loading' || (!session && !authReady)}>My GitHub</button><button role="tab" aria-selected={tab === 'following'} className={tab === 'following' ? 'active' : ''} onClick={() => session ? chooseTab('following') : signIn('github')} disabled={status === 'loading' || (!session && !authReady)}>Following</button><button role="tab" aria-selected={tab === 'discover'} className={tab === 'discover' ? 'active' : ''} onClick={() => chooseTab('discover')}>Discover</button></div>
     <div className="signal-board">
       <div className="signal-head"><div><span>REVIEW QUEUE</span><strong>{loading ? 'Loading updates' : `${newCount} new update${newCount === 1 ? '' : 's'}`}</strong><p>Filter what matters, then clear items as you read them.</p></div><button type="button" onClick={clearVisible} aria-label="Mark visible updates as read" title="Mark visible updates as read" disabled={loading || visible.length === 0 || visible.every(event => reviewed.has(event.id))}><CheckCheck size={16} /> Clear visible</button></div>
       <div className="signal-kinds" aria-label="Filter by update type">{kinds.map(item => <button type="button" key={item.id} className={kind === item.id ? 'active' : ''} aria-pressed={kind === item.id} onClick={() => setKind(item.id)}><span>{item.label}</span><b>{events.filter(event => (item.id === 'all' || eventKind(event.type) === item.id) && !reviewed.has(event.id)).length}</b></button>)}</div>
