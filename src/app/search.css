@@ -9,5 +9,20 @@
 .site-search button:hover{background:var(--lilac);color:var(--accent)}
 .code-input-help{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;font-size:12px}
 .status-banner{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.main-column>.site-search{margin-bottom:20px}
+.wide-page>.site-search{margin-bottom:18px}
+.explore-workbench{position:relative}
+.explore-workbench>.site-search{margin-bottom:16px}
+.following-shortcut{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap}
+.contribute-panel{padding:18px;background:var(--paper);border:1px solid var(--line);border-radius:12px}
+.contribute-page .contribute-panel>.contribute-filters{border:0;background:transparent;padding:18px 0 0;border-radius:0}
+.contribute-page .contribute-filters{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:18px;align-items:end}
+.contribute-page .contribute-filters>label{font-weight:400;gap:8px}
+.contribute-page .contribute-filters input:not([type=checkbox]),.contribute-page .contribute-filters select{height:42px;font-weight:400}
+.issue-filter-actions{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:12px;border-top:1px solid var(--line)}
+.contribute-page .issue-filter-actions .issue-checkbox{min-height:42px;align-self:center;margin:0;font-size:12px}
+.contribute-page .issue-filter-actions .issue-search{flex:none;width:auto;min-width:132px;height:42px;padding:0 18px;align-self:center;grid-column:auto}
+@media(max-width:900px){.contribute-page .contribute-filters{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.contribute-page .contribute-filters{gap:14px 10px;padding:14px}.contribute-page .contribute-filters>label{font-size:11px}.contribute-page .contribute-filters select,.contribute-page .contribute-filters input:not([type=checkbox]){font-size:12px;padding:8px}.issue-filter-actions{flex-wrap:wrap;gap:8px}.contribute-page .issue-filter-actions .issue-search{margin-left:auto;min-width:120px}.contribute-page .issue-filter-actions .issue-checkbox{font-size:11px}}
 @media(max-width:900px){.topbar{height:auto}.topbar-inner{height:auto;min-height:70px;flex-wrap:wrap;gap:10px;padding-top:12px;padding-bottom:12px}.search-host{order:3;flex-basis:100%;max-width:none}.top-actions{margin-left:auto}.brand{width:auto}}
 @media(max-width:400px){.site-search{gap:5px;padding:0 7px}.site-search>svg{display:none}.site-search select{width:94px;font-size:11px}.site-search input{font-size:12px}.site-search button{width:23px}}

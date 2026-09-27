@@ -39,15 +39,19 @@ export function ContributeView({ initialRepo, initialQuery = "" }: { initialRepo
   function page(number: number) { setBusy(true); setError(''); const next = new URLSearchParams(params); next.set('page', String(number)); setParams(next.toString()); }
   function retrySearch() { setBusy(true); setError(''); setRetry(value => value + 1); }
   return <div className="wide-page contribute-page"><div className="page-heading"><span className="eyebrow"><GitPullRequest size={13}/> OPEN SOURCE</span><h1>Find an issue<span>.</span></h1></div>
+    <section className="contribute-panel" aria-label="Find issues">
     <PageSearch scope="issues" value={q} onChange={setQ} onSubmit={() => search()} placeholder="Search open issues…" busy={busy} />
     <form className="contribute-filters" onSubmit={search}>
       <label>Experience<select aria-label="Experience" value={kind} onChange={event => setKind(event.target.value)}><option value="first">Good first issue</option><option value="help">Help wanted</option><option value="all">All open issues</option></select></label>
       <label>Language<select aria-label="Language" value={language} onChange={event => setLanguage(event.target.value)}><option value="">Any language</option>{contributionLanguages.map(item => <option key={item}>{item}</option>)}</select></label>
       <label>Updated within<select aria-label="Updated within" value={days} onChange={event => setDays(event.target.value)}><option value="30">30 days</option><option value="90">90 days</option><option value="365">A year</option></select></label>
-      <label>Repository <span>(optional)</span><input aria-label="Repository" value={repo} onChange={event => setRepo(event.target.value)} placeholder="e.g. microsoft/vscode" maxLength={140} spellCheck={false} autoCapitalize="none"/></label>
-      <label className="issue-checkbox"><input type="checkbox" checked={unassigned} onChange={event => setUnassigned(event.target.checked)}/> Only unassigned issues</label>
+      <label>Repository<input aria-label="Repository" value={repo} onChange={event => setRepo(event.target.value)} placeholder="Any repository" maxLength={140} spellCheck={false} autoCapitalize="none"/></label>
+      <div className="issue-filter-actions">
+      <label className="issue-checkbox"><input type="checkbox" checked={unassigned} onChange={event => setUnassigned(event.target.checked)}/> Unassigned only</label>
       <button className="issue-search" disabled={busy}>{busy ? 'Finding issues…' : 'Apply filters'}</button>
+      </div>
     </form>
+    </section>
     <p className="issue-hint">Check with the maintainer before starting.</p>
     {error && <ApiNotice message={error} retry={retrySearch} />}
     <div aria-live="polite" aria-busy={busy}>{busy ? <div className="issue-loading">Looking for open issues on GitHub…</div> : results && <><div className="section-bar"><h2>{results.total.toLocaleString()} matching issues{results.incomplete ? ' (partial results)' : ''}</h2><a href={results.githubUrl} target="_blank" rel="noopener noreferrer">View on GitHub <ArrowUpRight size={13}/></a></div>

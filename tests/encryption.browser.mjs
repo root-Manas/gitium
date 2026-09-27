@@ -1,15 +1,17 @@
 import { createServer } from "node:http";
 import { DatabaseSync } from "node:sqlite";
-import { readFileSync } from "node:fs";
+import { readFileSync, mkdirSync } from "node:fs";
 import { spawn } from "node:child_process";
 import { once } from "node:events";
 import { createRequire } from "node:module";
 import { resolve } from "node:path";
 import assert from "node:assert/strict";
 import { encode } from "next-auth/jwt";
+process.env.TEMP = process.env.TMP = 'D:/Projects/.gitium-tools/tmp';
+mkdirSync(process.env.TEMP, { recursive: true });
 const { chromium } = createRequire(import.meta.url)(
   process.env.GITIUM_PLAYWRIGHT_PATH ||
-    "C:/Users/Manas/AppData/Local/Temp/gitium-visual-tools/node_modules/playwright-core",
+    "D:/Projects/.gitium-tools/gitium-visual-tools/node_modules/playwright-core",
 );
 const db = new DatabaseSync(":memory:");
 db.exec(readFileSync("schema.sql", "utf8"));

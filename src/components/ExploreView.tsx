@@ -13,7 +13,6 @@ import {
 import { exploreLanguages, exploreTopics, essentials } from "@/lib/explore";
 import type { ExploreResults } from "@/lib/explore-server";
 import { PageSearch } from "./SiteSearch";
-import { ExploreTabs } from "./ExploreTabs";
 
 type Project = {
   repo: string;
@@ -201,19 +200,13 @@ export function ExploreView({
           </h1>
 
         </div>
+        <Link className="following-shortcut" href="/explore/following">Following <ArrowUpRight size={13} /></Link>
         <button className="share-search" onClick={share}>
           {copied ? <Check size={15} /> : <Copy size={15} />}{" "}
           {copied ? "Copied" : "Share search"}
         </button>
       </header>
       <div className="explore-workbench">
-        <ExploreTabs
-          view={view}
-          onSelect={(key) => {
-            setDraft("");
-            change({ view: key }, true);
-          }}
-        />
         <PageSearch scope={view === "orgs" ? "orgs" : view === "essentials" ? "essentials" : "projects"} value={draft} onChange={value => { setDraft(value); setLimit(24); }} onSubmit={() => change({ q: draft })} placeholder={view === "essentials" ? "Search 1,000+ tools…" : view === "orgs" ? "Find an organization…" : "Search projects…"} />
         {view === "essentials" ? (
           <div className="explore-controls">

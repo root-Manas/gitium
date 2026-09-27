@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-import { DefaultSearch, SearchHost } from "./SiteSearch";
+import { DefaultSearch } from "./SiteSearch";
 import { signIn, signOut, useSession } from "next-auth/react";
 import {
   Bookmark,
@@ -43,7 +43,6 @@ export function Shell({
   searchPeople?: boolean;
 }) {
   const { data: session } = useSession();
-  const [searchHost, setSearchHost] = useState<HTMLDivElement | null>(null);
   const [more, setMore] = useState(false);
   const pathname = usePathname();
   useEffect(()=>{
@@ -81,7 +80,7 @@ export function Shell({
     );
   }
   return (
-    <SearchHost.Provider value={searchHost}><div className="site-shell">
+    <div className="site-shell">
       <header className="topbar">
         <div className="topbar-inner">
           <Link href="/explore" className="brand" aria-label="Gitium home">
@@ -99,7 +98,6 @@ export function Shell({
             </span>
             <span>gitium</span>
           </Link>
-          <div className="search-host" ref={setSearchHost}>{!pageSearch && <DefaultSearch key={searchInitial} initial={searchInitial} scope={searchPeople ? "people" : "projects"} />}</div>
           <div className="top-actions">
             <button
               className="theme-toggle"
@@ -164,7 +162,7 @@ export function Shell({
             </div>
           </div>
         </aside>
-        <main className="main-column">{children}</main>
+        <main className="main-column">{!pageSearch && <DefaultSearch key={searchInitial} initial={searchInitial} scope={searchPeople ? "people" : "projects"} />}{children}</main>
       </div>
       {more && (
         <div className="mobile-more" id="more-navigation">
@@ -198,6 +196,6 @@ export function Shell({
           <span>More</span>
         </button>
       </nav>
-    </div></SearchHost.Provider>
+    </div>
   );
 }

@@ -1,10 +1,8 @@
 "use client";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, ArrowRight, X } from "lucide-react";
 
-export const SearchHost = createContext<HTMLDivElement | null>(null);
 const scopes = { projects: "Projects", orgs: "Organizations", essentials: "Essentials", people: "People", code: "Code graph", accounts: "Accounts", issues: "Issues", saved: "Saved" };
 type Scope = keyof typeof scopes;
 function destination(scope: Scope, value = "") {
@@ -37,8 +35,7 @@ export function SiteSearch({ scope = "projects", value, onChange, onSubmit, plac
   </form>;
 }
 export function PageSearch(props: Props) {
-  const host = useContext(SearchHost);
-  return host ? createPortal(<SiteSearch {...props} />, host) : null;
+  return <SiteSearch {...props} />;
 }
 export function DefaultSearch({ initial = "", scope = "projects" }: { initial?: string; scope?: Scope }) {
   const [value, setValue] = useState(initial);

@@ -4,7 +4,6 @@ import { discoverFromPeople, getFeed } from "@/lib/github";
 import { Shell } from "@/components/Shell";
 import { FeedView } from "@/components/FeedView";
 import { DiscoveryPanel } from "@/components/DiscoveryPanel";
-import { ExploreTabs } from "@/components/ExploreTabs";
 
 export const metadata = {
   title: "Following",
@@ -31,9 +30,6 @@ export default async function FollowingPage() {
             <p>Projects and updates from the people you follow.</p>
           </div>
         </header>
-        <div className="explore-workbench">
-          <ExploreTabs view="following" />
-        </div>
         <DiscoveryPanel example={example.projects} />
         <FeedView discover={feed.events} authReady={authEnabled()} />
       </div>

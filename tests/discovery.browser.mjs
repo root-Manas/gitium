@@ -1,9 +1,12 @@
 import { spawn } from 'node:child_process';
 import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
+import { mkdirSync } from 'node:fs';
 import assert from 'node:assert/strict';
 import { encode } from 'next-auth/jwt';
-const { chromium } = createRequire(import.meta.url)(process.env.GITIUM_PLAYWRIGHT_PATH || 'C:/Users/Manas/AppData/Local/Temp/gitium-visual-tools/node_modules/playwright-core');
+process.env.TEMP = process.env.TMP = 'D:/Projects/.gitium-tools/tmp';
+mkdirSync(process.env.TEMP, { recursive: true });
+const { chromium } = createRequire(import.meta.url)(process.env.GITIUM_PLAYWRIGHT_PATH || 'D:/Projects/.gitium-tools/gitium-visual-tools/node_modules/playwright-core');
 const base = 'http://localhost:3228', secret = 'isolated-discovery-test-secret';
 const app = spawn(process.execPath, ['--require', resolve('tests/fixtures/discovery-preload.cjs'), 'node_modules/next/dist/bin/next', 'start', '--port', '3228'], { env: { ...process.env, NEXTAUTH_URL: base, NEXTAUTH_SECRET: secret, GITHUB_ID: 'test', GITHUB_SECRET: 'test', CF_D1_WORKER_URL: '', CF_D1_SERVICE_TOKEN: '' }, stdio: ['ignore', 'pipe', 'pipe'] });
 let logs = '', browser;
