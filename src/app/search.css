@@ -16,6 +16,7 @@
 .following-shortcut{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap}
 .contribute-panel{padding:18px;background:var(--paper);border:1px solid var(--line);border-radius:12px}
 .contribute-page .contribute-panel>.contribute-filters{border:0;background:transparent;padding:18px 0 0;border-radius:0}
+@media(max-width:600px){.explore-heading{flex-wrap:wrap}.explore-heading>div{flex:0 0 100%}.explore-heading .following-shortcut{margin-left:0;margin-right:auto}}
 .contribute-page .contribute-filters{grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;padding:18px;align-items:end}
 .contribute-page .contribute-filters>label{font-weight:400;gap:8px}
 .contribute-page .contribute-filters input:not([type=checkbox]),.contribute-page .contribute-filters select{height:42px;font-weight:400}
