@@ -41,3 +41,10 @@ next-env.d.ts
 /prisma/*.db-journal
 .env*
 /public/e2ee/vendor/
+
+# Deployment bindings stay local; use wrangler.example.jsonc as the template.
+/wrangler.jsonc
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal

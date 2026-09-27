@@ -1,35 +1,33 @@
-import { authEnabled } from '@/lib/auth';
-import { dbConfigured } from '@/lib/d1';
-import { githubGet, GitHubRepo, GitHubUser } from '@/lib/github';
-import { essentials, exploreLanguages, exploreQuery, exploreTopics } from '@/lib/explore';
-import { Shell } from '@/components/Shell';
-import { ArrowUpRight, Search, Star, GitFork } from 'lucide-react';
-import Link from 'next/link';
-
-export const metadata = { title: 'Find useful GitHub projects and organizations', description: 'Browse top GitHub projects by stars, language and topic. Discover organizations, essential open source tools and issues to contribute to.', alternates: { canonical: '/explore' } };
-type Results<T> = { items: T[]; total_count: number; incomplete_results: boolean };
-export default async function ExplorePage({ searchParams }: { searchParams: Promise<Record<string, string | string[] | undefined>> }) {
+import { authEnabled } from "@/lib/auth";
+import { dbConfigured } from "@/lib/d1";
+import { loadExplore } from "@/lib/explore-server";
+import { Shell } from "@/components/Shell";
+import { ExploreView } from "@/components/ExploreView";
+export const metadata = {
+  title: "Find useful GitHub projects and organizations",
+  description:
+    "Search top GitHub projects, discover organizations and browse more than 1,000 essential open source tools by category.",
+  alternates: { canonical: "/explore" },
+};
+export default async function ExplorePage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const raw = await searchParams;
-  const params = new URLSearchParams(Object.entries(raw).flatMap(([key, value]) => typeof value === 'string' ? [[key, value]] : []));
-  let search; let error = '';
-  try { search = exploreQuery(params); } catch (problem) { error = (problem as Error).message; search = exploreQuery(new URLSearchParams()); }
-  let repos: GitHubRepo[] = []; let orgs: GitHubUser[] = []; let total = 0; let incomplete = false;
-  if (!error && search.view !== 'essentials') try {
-    const path = `/search/${search.view === 'orgs' ? 'users' : 'repositories'}?q=${encodeURIComponent(search.query)}&sort=${search.sort}&order=desc&per_page=18&page=${search.page}`;
-    const data = await githubGet<Results<GitHubRepo> | Results<GitHubUser>>(path, 900);
-    total = data.total_count; incomplete = data.incomplete_results;
-    if (search.view === 'orgs') orgs = data.items as GitHubUser[]; else repos = data.items as GitHubRepo[];
-  } catch (problem) { error = problem instanceof Error ? problem.message : 'GitHub search is unavailable. Please try again.'; }
-  const pageUrl = (page: number) => { const next = new URLSearchParams(params); next.set('page', String(page)); return `/explore?${next}`; };
-  return <Shell authReady={authEnabled()} dataReady={dbConfigured()}><div className="wide-page discovery-page">
-    <div className="page-heading"><span className="eyebrow"><Search size={13}/> EXPLORE</span><h1>Find your next useful project<span>.</span></h1><p>Look up a tool, browse what people star, or find the organizations behind it.</p></div>
-    <nav className="discovery-tabs" aria-label="Explore categories">{[['projects', 'Top projects'], ['orgs', 'Organizations'], ['essentials', 'Essentials']].map(([key, label]) => <Link key={key} href={`/explore?view=${key}`} aria-current={search.view === key ? 'page' : undefined}>{label}</Link>)}<Link href="/contribute">Find an issue <ArrowUpRight size={14}/></Link></nav>
-    {search.view === 'essentials' ? <><div className="section-bar"><h2>A useful starting kit</h2><span>CURATED BY GITIUM</span></div><p className="issue-hint">Selected for a clear everyday use: building, running, protecting or learning about software. This is an editorial collection, not a popularity ranking or a security review. Check each project’s license and documentation.</p><div className="repo-grid">{essentials.map(item => <article className="repo-card discovery-card" key={item.repo}><small>{item.category}</small><h2><a href={`https://github.com/${item.repo}`} target="_blank" rel="noopener noreferrer">{item.repo} <ArrowUpRight size={15}/></a></h2><p>{item.text}</p><p className="discovery-caveat">Before you use it: {item.caveat}</p><footer><Link href={`/code?repo=${item.repo}`}>Explore code</Link><Link href={`/contribute?repo=${item.repo}`}>Find an issue</Link></footer></article>)}</div></> : <>
-    <form className="contribute-filters discovery-filters" action="/explore"><input type="hidden" name="view" value={search.view}/><label>Search<input name="q" defaultValue={search.q} placeholder={search.view === 'orgs' ? 'Organization name' : 'e.g. terminal, backup, editor'} maxLength={60}/></label>
-      {search.view === 'projects' && <><label>Language<select name="language" defaultValue={search.language}><option value="">Any language</option>{exploreLanguages.map(item => <option key={item}>{item}</option>)}</select></label><label>Category<select name="topic" defaultValue={search.topic}><option value="">Any topic</option>{exploreTopics.map(item => <option key={item} value={item}>{item.replaceAll('-', ' ')}</option>)}</select></label><label>Created<select name="period" defaultValue={search.period}><option value="all">Any time</option><option value="30">Last 30 days</option><option value="365">Last year</option></select></label><label>Owner<input name="owner" defaultValue={search.owner} placeholder="Any user or organization" maxLength={39}/></label></>}
-      <label>Rank by<select name="sort" defaultValue={search.sort}>{(search.view === 'orgs' ? [['followers', 'Most followers'], ['repositories', 'Most repositories']] : [['stars', 'Most stars'], ['forks', 'Most forks'], ['updated', 'Recently updated']]).map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label><button className="issue-search"><Search size={16}/> Search</button></form>
-      <p className="issue-hint">{search.view === 'orgs' ? 'Organizations ranked by GitHub’s follower or repository count. Size is not a measure of quality. Open an organization to browse its projects.' : 'Public, non-archived projects, excluding forks. Stars and forks are lifetime totals, including when you filter by creation date. Recently updated is not a measure of stars gained.'} Results refresh about every 15 minutes. You can share this page’s URL with its filters.</p>
-      {error ? <p className="status-banner" role="alert">{error}</p> : <><div className="section-bar"><h2>{total.toLocaleString()} matches{incomplete ? ' (partial results)' : ''}</h2><span>PAGE {search.page} · UP TO 90 RESULTS</span></div><div className="repo-grid">{repos.map(repo => <article className="repo-card discovery-card" key={repo.id}><div><img src={repo.owner.avatar_url} alt=""/><small>{repo.language || 'Multiple languages'}</small></div><h2><a href={`https://github.com/${repo.full_name}`} target="_blank" rel="noopener noreferrer">{repo.full_name} <ArrowUpRight size={15}/></a></h2><p>{repo.description || 'No description provided.'}</p><div className="discovery-stats"><span><Star size={14}/> {repo.stargazers_count.toLocaleString()} stars</span><span><GitFork size={14}/> {repo.forks_count.toLocaleString()} forks</span></div><footer><Link href={`/code?repo=${encodeURIComponent(repo.full_name)}`}>Explore code</Link><Link href={`/contribute?repo=${encodeURIComponent(repo.full_name)}`}>Find an issue</Link></footer></article>)}{orgs.map(org => <article className="repo-card discovery-card" key={org.id}><div><img src={org.avatar_url} alt=""/><small>Organization</small></div><h2>{org.login}</h2><p>Browse public projects maintained by {org.login}.</p><footer><Link href={`/explore?owner=${encodeURIComponent(org.login)}`}>Browse projects</Link><a href={`https://github.com/${org.login}`} target="_blank" rel="noopener noreferrer">GitHub <ArrowUpRight size={14}/></a></footer></article>)}</div>{!total && <p className="space-empty">No matches. Try fewer filters or a different name.</p>}<div className="issue-pagination">{search.page > 1 ? <Link href={pageUrl(search.page - 1)}>Previous</Link> : <span>Previous</span>}<span>Page {search.page}</span>{search.page < 5 && search.page * 18 < total ? <Link href={pageUrl(search.page + 1)}>Next</Link> : <span>Next</span>}</div></>}
-    </>}
-  </div></Shell>;
+  const params = new URLSearchParams(
+    Object.entries(raw).flatMap(([key, value]) =>
+      typeof value === "string" ? [[key, value]] : [],
+    ),
+  );
+  const initial = await loadExplore(params).catch(() => null);
+  return (
+    <Shell authReady={authEnabled()} dataReady={dbConfigured()}>
+      <ExploreView
+        key={params.toString()}
+        initialParams={params.toString()}
+        initial={initial}
+      />
+    </Shell>
+  );
 }

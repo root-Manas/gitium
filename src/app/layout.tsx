@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { SessionProvider } from '@/components/SessionProvider';
 import './globals.css';
+import './theme.css';
 
 const site = 'https://gitium.vercel.app';
 const description = 'Find top GitHub projects and organizations by language and topic. Browse essential open source tools, explore code graphs, and find issues to contribute to.';

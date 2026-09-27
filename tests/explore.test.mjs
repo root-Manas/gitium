@@ -7,6 +7,7 @@ test('discovery rankings keep public scope and describe creation windows', () =>
   for (const part of ['is:public', 'archived:false', 'fork:false', 'user:microsoft', 'created:>=2026-08-28']) assert.ok(search.query.includes(part));
   assert.equal(exploreQuery(new URLSearchParams('view=orgs')).query, 'type:org repos:>0');
   assert.equal(exploreQuery(new URLSearchParams('view=orgs')).sort, 'followers');
+  assert.ok(exploreQuery(new URLSearchParams('q=https://github.com/microsoft/vscode.git')).query.includes('repo:microsoft/vscode'));
 });
 test('discovery rejects qualifier injection and excessive pagination', () => {
   for (const query of ['q=is:private', 'owner=x+is:private', 'view=people', 'sort=nonsense', 'page=6', 'period=2']) assert.throws(() => exploreQuery(new URLSearchParams(query)));
