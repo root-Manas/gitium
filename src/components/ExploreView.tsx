@@ -10,6 +10,9 @@ import {
   SlidersHorizontal,
   Star,
   X,
+  Terminal,
+  Layers,
+  Blocks,
 } from "lucide-react";
 import { exploreLanguages, exploreTopics, essentials } from "@/lib/explore";
 import type { ExploreResults } from "@/lib/explore-server";
@@ -209,203 +212,218 @@ export function ExploreView({
     <div className="wide-page explore-v2">
       <header className="explore-heading">
         <div>
-          <span className="eyebrow">EXPLORE GITHUB</span>
-          <h1>What will you find?</h1>
-          <p>Useful projects, the people behind them, and a place to start.</p>
+          <h1>
+            Find your next project<span>.</span>
+          </h1>
+          <p>
+            Browse open-source tools, projects, and the people building them.
+          </p>
         </div>
         <button className="share-search" onClick={share}>
           {copied ? <Check size={15} /> : <Copy size={15} />}{" "}
           {copied ? "Copied" : "Share search"}
         </button>
       </header>
-      <nav className="explore-switch" aria-label="Explore categories">
-        {[
-          ["projects", "Projects"],
-          ["orgs", "Organizations"],
-          ["essentials", "Essentials · 1,000+"],
-        ].map(([key, label]) => (
-          <button
-            key={key}
-            aria-current={view === key ? "page" : undefined}
-            onClick={() => {
-              setDraft("");
-              change({ view: key }, true);
-            }}
-          >
-            {label}
-          </button>
-        ))}
-        <Link href="/contribute">
-          Find an issue <ArrowUpRight size={14} />
-        </Link>
-      </nav>
-      <div className="explore-searchbox">
-        <Search size={22} />
-        <input
-          ref={searchRef}
-          aria-label="Search Explore"
-          value={draft}
-          maxLength={140}
-          placeholder={
-            view === "essentials"
-              ? "Search 1,000+ tools — backups, notes, media…"
-              : view === "orgs"
-                ? "Find an organization…"
-                : "Search GitHub projects…"
-          }
-          onChange={(event) => {
-            setDraft(event.target.value);
-            setLimit(24);
-          }}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") change({ q: draft });
-          }}
-        />
-        {draft ? (
-          <button aria-label="Clear search" onClick={() => change({ q: "" })}>
-            <X size={18} />
-          </button>
-        ) : (
-          <kbd>/</kbd>
-        )}
-      </div>
-      {view === "essentials" ? (
-        <div className="explore-controls">
-          <label>
-            Category
-            <select
-              aria-label="Essential category"
-              value={filters.get("category") || ""}
-              onChange={(event) => change({ category: event.target.value })}
+      <div className="explore-workbench">
+        <nav className="explore-switch" aria-label="Explore categories">
+          {[
+            ["projects", "Projects"],
+            ["orgs", "Organizations"],
+            ["essentials", "Essentials · 1,000+"],
+          ].map(([key, label]) => (
+            <button
+              key={key}
+              aria-current={view === key ? "page" : undefined}
+              onClick={() => {
+                setDraft("");
+                change({ view: key }, true);
+              }}
             >
-              <option value="">All categories</option>
-              {categories.map((category) => (
-                <option key={category}>{category}</option>
-              ))}
-            </select>
-          </label>
-          <span className="explore-small">
-            Instant search · no sign-in needed
-          </span>
+              {key === "projects" ? (
+                <Blocks size={16} />
+              ) : key === "orgs" ? (
+                <Layers size={16} />
+              ) : (
+                <Terminal size={16} />
+              )}{" "}
+              {label}
+            </button>
+          ))}
+          <Link href="/contribute">
+            Find an issue <ArrowUpRight size={14} />
+          </Link>
+        </nav>
+        <div className="explore-searchbox">
+          <Search size={22} />
+          <input
+            ref={searchRef}
+            aria-label="Search Explore"
+            value={draft}
+            maxLength={140}
+            placeholder={
+              view === "essentials"
+                ? "Search 1,000+ tools — backups, notes, media…"
+                : view === "orgs"
+                  ? "Find an organization…"
+                  : "Search GitHub projects…"
+            }
+            onChange={(event) => {
+              setDraft(event.target.value);
+              setLimit(24);
+            }}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") change({ q: draft });
+            }}
+          />
+          {draft ? (
+            <button aria-label="Clear search" onClick={() => change({ q: "" })}>
+              <X size={18} />
+            </button>
+          ) : (
+            <kbd>/</kbd>
+          )}
         </div>
-      ) : (
-        <>
+        {view === "essentials" ? (
           <div className="explore-controls">
-            {view === "projects" && (
-              <label>
-                Language
-                <select
-                  aria-label="Project language"
-                  value={filters.get("language") || ""}
-                  onChange={(event) => change({ language: event.target.value })}
-                >
-                  <option value="">Any language</option>
-                  {exploreLanguages.map((language) => (
-                    <option key={language}>{language}</option>
-                  ))}
-                </select>
-              </label>
-            )}
             <label>
-              Sort
+              Category
               <select
-                aria-label="Rank projects"
-                value={
-                  filters.get("sort") ||
-                  (view === "orgs" ? "followers" : "stars")
-                }
-                onChange={(event) => change({ sort: event.target.value })}
+                aria-label="Essential category"
+                value={filters.get("category") || ""}
+                onChange={(event) => change({ category: event.target.value })}
               >
-                {(view === "orgs"
-                  ? [
-                      ["followers", "Most followers"],
-                      ["repositories", "Most repositories"],
-                    ]
-                  : [
-                      ["stars", "Most stars"],
-                      ["forks", "Most forks"],
-                      ["updated", "Recently updated"],
-                    ]
-                ).map(([value, label]) => (
-                  <option key={value} value={value}>
-                    {label}
-                  </option>
+                <option value="">All categories</option>
+                {categories.map((category) => (
+                  <option key={category}>{category}</option>
                 ))}
               </select>
             </label>
-            {view === "projects" && (
-              <button
-                aria-expanded={advanced}
-                onClick={() => setAdvanced(!advanced)}
-              >
-                <SlidersHorizontal size={15} /> More filters
-              </button>
-            )}
+            <span className="explore-small">
+              Instant search · no sign-in needed
+            </span>
           </div>
-          {view === "projects" && (
-            <div className="explore-chips" aria-label="Quick topics">
-              {exploreTopics.map((topic) => (
-                <button
-                  key={topic}
-                  aria-pressed={filters.get("topic") === topic}
-                  onClick={() =>
-                    change({
-                      topic: filters.get("topic") === topic ? "" : topic,
-                    })
-                  }
-                >
-                  {topic.replaceAll("-", " ")}
-                </button>
-              ))}
-            </div>
-          )}
-          {advanced && view === "projects" && (
-            <div className="explore-advanced">
+        ) : (
+          <>
+            <div className="explore-controls">
+              {view === "projects" && (
+                <label>
+                  Language
+                  <select
+                    aria-label="Project language"
+                    value={filters.get("language") || ""}
+                    onChange={(event) =>
+                      change({ language: event.target.value })
+                    }
+                  >
+                    <option value="">Any language</option>
+                    {exploreLanguages.map((language) => (
+                      <option key={language}>{language}</option>
+                    ))}
+                  </select>
+                </label>
+              )}
               <label>
-                Owner
-                <input
-                  aria-label="Project owner"
-                  placeholder="e.g. microsoft"
-                  defaultValue={filters.get("owner") || ""}
-                  onKeyDown={(event) => {
-                    if (event.key === "Enter")
-                      change({ owner: event.currentTarget.value.trim() });
-                  }}
-                  onBlur={(event) => {
-                    if (
-                      event.target.value.trim() !== (filters.get("owner") || "")
-                    )
-                      change({ owner: event.target.value.trim() });
-                  }}
-                />
-              </label>
-              <label>
-                Created
+                Sort
                 <select
-                  value={filters.get("period") || "all"}
-                  onChange={(event) => change({ period: event.target.value })}
+                  aria-label="Rank projects"
+                  value={
+                    filters.get("sort") ||
+                    (view === "orgs" ? "followers" : "stars")
+                  }
+                  onChange={(event) => change({ sort: event.target.value })}
                 >
-                  <option value="all">Any time</option>
-                  <option value="30">Last 30 days</option>
-                  <option value="365">Last year</option>
+                  {(view === "orgs"
+                    ? [
+                        ["followers", "Most followers"],
+                        ["repositories", "Most repositories"],
+                      ]
+                    : [
+                        ["stars", "Most stars"],
+                        ["forks", "Most forks"],
+                        ["updated", "Recently updated"],
+                      ]
+                  ).map(([value, label]) => (
+                    <option key={value} value={value}>
+                      {label}
+                    </option>
+                  ))}
                 </select>
               </label>
+              {view === "projects" && (
+                <button
+                  aria-expanded={advanced}
+                  onClick={() => setAdvanced(!advanced)}
+                >
+                  <SlidersHorizontal size={15} /> More filters
+                </button>
+              )}
             </div>
-          )}
-        </>
-      )}
-      {activeFilters.length > 0 && (
-        <div className="active-filters">
-          {activeFilters.map(([key, value]) => (
-            <button key={key} onClick={() => change({ [key]: "" })}>
-              {value} <X size={12} />
+            {view === "projects" && (
+              <div className="explore-chips" aria-label="Quick topics">
+                {exploreTopics.map((topic) => (
+                  <button
+                    key={topic}
+                    aria-pressed={filters.get("topic") === topic}
+                    onClick={() =>
+                      change({
+                        topic: filters.get("topic") === topic ? "" : topic,
+                      })
+                    }
+                  >
+                    {topic.replaceAll("-", " ")}
+                  </button>
+                ))}
+              </div>
+            )}
+            {advanced && view === "projects" && (
+              <div className="explore-advanced">
+                <label>
+                  Owner
+                  <input
+                    aria-label="Project owner"
+                    placeholder="e.g. microsoft"
+                    defaultValue={filters.get("owner") || ""}
+                    onKeyDown={(event) => {
+                      if (event.key === "Enter")
+                        change({ owner: event.currentTarget.value.trim() });
+                    }}
+                    onBlur={(event) => {
+                      if (
+                        event.target.value.trim() !==
+                        (filters.get("owner") || "")
+                      )
+                        change({ owner: event.target.value.trim() });
+                    }}
+                  />
+                </label>
+                <label>
+                  Created
+                  <select
+                    value={filters.get("period") || "all"}
+                    onChange={(event) => change({ period: event.target.value })}
+                  >
+                    <option value="all">Any time</option>
+                    <option value="30">Last 30 days</option>
+                    <option value="365">Last year</option>
+                  </select>
+                </label>
+              </div>
+            )}
+          </>
+        )}
+        {activeFilters.length > 0 && (
+          <div className="active-filters">
+            {activeFilters.map(([key, value]) => (
+              <button key={key} onClick={() => change({ [key]: "" })}>
+                {value} <X size={12} />
+              </button>
+            ))}
+            <button onClick={() => change({ view, q: draft }, true)}>
+              Reset filters
             </button>
-          ))}
-          <button onClick={() => change({ view, q: draft }, true)}>
-            Reset filters
-          </button>
-        </div>
-      )}
+          </div>
+        )}
+      </div>
       {error && (
         <div className="status-banner" role="alert">
           {error}{" "}
@@ -426,23 +444,33 @@ export function ExploreView({
             </h2>
             <span>{categories.length} categories</span>
           </div>
-          <p className="catalog-attribution">
-            A searchable community catalog from{" "}
-            <a
-              href="https://github.com/awesome-selfhosted/awesome-selfhosted"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Awesome Selfhosted
-            </a>
-            , with Gitium starter picks. Project descriptions come from the
-            source list; inclusion is not a security review.{" "}
-            <a href="/catalog/LICENSE.txt">CC BY-SA 3.0</a>
-            {catalog && ` · Snapshot ${catalog.updated}`}
-          </p>
+          <details className="catalog-attribution">
+            <summary>About this collection</summary>
+            <p>
+              A searchable community catalog from{" "}
+              <a
+                href="https://github.com/awesome-selfhosted/awesome-selfhosted"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Awesome Selfhosted
+              </a>
+              , with Gitium starter picks. Project descriptions come from the
+              source list; inclusion is not a security review.{" "}
+              <a href="/catalog/LICENSE.txt">CC BY-SA 3.0</a>
+              {catalog && ` · Snapshot ${catalog.updated}`}
+            </p>
+          </details>
           <div className="project-grid">
             {filtered.slice(0, limit).map((item) => (
               <article className="project-tile" key={item.repo}>
+                <div className="essential-icon" aria-hidden="true">
+                  <img
+                    src={`https://github.com/${item.repo.split("/")[0]}.png?size=80`}
+                    alt=""
+                    loading="lazy"
+                  />
+                </div>
                 <span className="tile-category">{item.category}</span>
                 <h2>
                   <a
