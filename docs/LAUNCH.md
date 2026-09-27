@@ -17,15 +17,13 @@ Maker: https://manasraj.vercel.app
 
 ## X draft
 
-I built Gitium to make it easier to find useful things on GitHub.
+I built Gitium for those "there must be a GitHub project for this" moments.
 
-Browse projects by language and topic, find the organizations behind them, or pick an open issue to contribute to.
+Search 1,000+ essentials, browse projects and organizations, and find issues to contribute to.
 
-I also added an Essentials collection with a short explanation of what each tool does and its tradeoffs.
+https://gitium.vercel.app/explore
 
-Try it: https://gitium.vercel.app/explore
-
-What project belongs in the collection?
+What should I try next?
 
 ## Product Hunt draft
 
@@ -33,13 +31,13 @@ What project belongs in the collection?
 
 **Tagline:** Find useful GitHub projects and somewhere to contribute
 
-**Description:** Browse top GitHub projects and organizations, filter by language and topic, and explore a curated collection of useful tools. Inspect commit graphs, import your stars, and find open issues to contribute to. Free to use, with light and dark themes.
+**Description:** Find your next useful GitHub project. Search 1,000+ essentials instantly, browse projects and organizations, and find issues to contribute to. Explore commit graphs and import your stars. Free to use, in light or dark mode.
 
 **Maker comment:**
 
-I wanted a quicker way to find projects I'd actually use. Gitium puts project search, organizations, a small Essentials collection and contribution issues in one place.
+I wanted a quicker way to find projects I'd actually use. Gitium puts project search, organizations, over 1,000 Essentials and contribution issues in one place. You can search Essentials without signing in, and filtering that catalog doesn't use GitHub's API quota.
 
-Rankings tell you what they measure. Stars are lifetime totals, not a claim that a project is the best. The curated tools include a reason to try them and a limitation to keep in mind.
+Rankings tell you what they measure. Stars are lifetime totals, not a claim that a project is the best. The Essentials catalog combines a few personal picks with the awesome-selfhosted community's collection, with attribution and category filters. Inclusion is not a security review.
 
 You can also explore recent commits, bring in your GitHub stars and chat with other Gitium users. DMs require an accepted request; repository and organization rooms require an invitation. Chat is not yet end-to-end encrypted.
 
@@ -65,7 +63,7 @@ These conversion events are a proposed next measurement step, not currently coll
 
 ## Free usage and caching
 
-Explore reuses public GitHub search responses for 15 minutes. Essentials is bundled editorial content and needs no GitHub or database request. Graphs and leaderboards advertise five-minute shared caches. Personal stars, chats and authenticated feeds are never shared-cached. Chat refreshes every 30 seconds while visible; requests and room sizes are bounded.
+Explore reuses public GitHub search responses for 15 minutes and debounces live queries. Essentials is a static catalog filtered in the browser and needs no GitHub or database request. Graphs and leaderboards advertise five-minute shared caches. Personal stars, chats and authenticated feeds are never shared-cached. Chat refreshes every 30 seconds while visible; requests and room sizes are bounded.
 
 Anonymous GitHub search has a separate small rate allowance. A cache helps repeated searches, but many distinct queries can still exhaust it. Show a retry message; do not silently invent results. Inspect quota errors during launch before expanding traffic.
 
@@ -74,5 +72,11 @@ Free tiers have finite capacity. D1 can stop at daily limits; Vercel Hobby has u
 ## Publication status
 
 This is prepared copy. No X announcement or Product Hunt listing has been published by this work. The maker still needs to choose a launch date and publish from their account.
+
+## Prepared assets
+
+Open [the launch kit](launch-kit/index.html) locally to preview the screenshots, demo and copy. Gallery screenshots are 1270 × 760; the thumbnail is 240 × 240. The demo is WebM. Product Hunt accepts a public YouTube video URL, so upload the demo there before adding it to the listing. For X, convert to a supported upload format if its composer rejects WebM.
+
+Launch with discovery first. Keep the local encryption candidate out of launch claims until its release gates in `docs/ENCRYPTION-CANDIDATE.md` on the local encryption branch are complete. The production app currently uses access-controlled chat, not end-to-end encryption.
 
 Sources: [GitHub search limits](https://docs.github.com/en/rest/search/search), [Product Hunt launch guide](https://www.producthunt.com/launch), [posting a product](https://help.producthunt.com/en/articles/479557-how-to-post-a-product), [launch rules](https://www.producthunt.com/launch/how-product-hunt-works), [Vercel Hobby](https://vercel.com/docs/plans/hobby), [D1 free-tier enforcement](https://developers.cloudflare.com/changelog/post/2026-09-01-d1-free-tier-limit-enforcement/).
