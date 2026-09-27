@@ -1,7 +1,7 @@
 import * as sdk from "./vendor/index.mjs";
 import { ReplayStore } from "./replay-store.mjs";
 
-// Local integration candidate. The SDK owns every cryptographic operation.
+// The SDK owns every cryptographic operation.
 // The transport supplies Matrix-shaped public keys and opaque device messages.
 export class CryptoClient {
   constructor(machine, transport, replay) {
@@ -104,13 +104,11 @@ export class CryptoClient {
   }
   async devices(id) {
     const devices = await this.machine.getUserDevices(new sdk.UserId(id));
-    return devices
-      .devices()
-      .map((device) => ({
-        id: device.deviceId.toString(),
-        fingerprint: device.ed25519Key?.toBase64(),
-        verified: device.isVerified(),
-      }));
+    return devices.devices().map((device) => ({
+      id: device.deviceId.toString(),
+      fingerprint: device.ed25519Key?.toBase64(),
+      verified: device.isVerified(),
+    }));
   }
   async verify(id, deviceId, expectedFingerprint) {
     const device = await this.machine.getDevice(
@@ -161,8 +159,8 @@ export class CryptoClient {
         ids.map((id) => new sdk.UserId(id)),
       ),
     );
-    // Fresh sender session per message while validating the candidate. This
-    // favors revocation isolation over bandwidth; benchmark before rollout.
+    // Fresh sender session per message favors revocation isolation over bandwidth.
+    // Server quotas and a payload budget bound the cost of this policy.
     await this.machine.invalidateGroupSession(new sdk.RoomId(room));
     const settings = new sdk.EncryptionSettings();
     settings.algorithm = sdk.EncryptionAlgorithm.MegolmV1AesSha2;
@@ -185,7 +183,11 @@ export class CryptoClient {
       await this.machine.encryptRoomEvent(
         new sdk.RoomId(room),
         "m.room.message",
-        JSON.stringify({ msgtype: "m.text", body, gitium: binding }),
+        JSON.stringify({
+          msgtype: "m.text",
+          body,
+          gitium: { ...binding, sender: this.userId },
+        }),
       ),
     );
     return { type: "m.room.encrypted", sender: this.userId, content };
@@ -199,6 +201,7 @@ export class CryptoClient {
       new sdk.DecryptionSettings(sdk.TrustRequirement.Untrusted),
     );
     const sender = result.sender.toString();
+    if (event.sender !== sender) throw new Error("Sender identity was changed");
     const deviceId = result.senderDevice?.toString();
     if (!deviceId && !recoveredHistory)
       throw new Error("Unknown sender device");
@@ -223,6 +226,7 @@ export class CryptoClient {
       throw new Error("Invalid encrypted message");
     if (
       plaintext.content.gitium?.id !== event.event_id ||
+      plaintext.content.gitium?.sender !== sender ||
       !Number.isSafeInteger(plaintext.content.gitium?.epoch)
     )
       throw new Error("Message identity was changed");
@@ -250,6 +254,8 @@ export class CryptoClient {
     return this.machine.importExportedRoomKeys(keys, () => {});
   }
   close() {
+    if (this.closed) return;
+    this.closed = true;
     this.replay.close();
     this.machine.close();
     this.release?.();

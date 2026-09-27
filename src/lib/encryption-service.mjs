@@ -293,18 +293,39 @@ export class EncryptionService {
       return stored[0];
     }
     if (action === "messages") {
-      const rows = await this.rows(
-        `SELECT id,payload,created_at FROM e2ee_events WHERE room_id=?1 AND ${permitted} ORDER BY created_at DESC,id DESC LIMIT 100`,
-        [room, user, epoch],
+      const cursor = payload.before;
+      requireValue(
+        !cursor ||
+          (Number.isSafeInteger(cursor.time) &&
+            typeof cursor.id === "string" &&
+            cursor.id.length < 80),
+        "Invalid history cursor.",
+        400,
       );
+      const rows = await this.rows(
+        `SELECT id,payload,created_at FROM e2ee_events WHERE room_id=?1 AND ${permitted} AND (created_at<?4 OR (created_at=?4 AND id<?5)) ORDER BY created_at DESC,id DESC LIMIT 51`,
+        [
+          room,
+          user,
+          epoch,
+          cursor?.time ?? Number.MAX_SAFE_INTEGER,
+          cursor?.id ?? "",
+        ],
+      );
+      const page = rows.slice(0, 50);
       return {
-        events: rows
-          .reverse()
-          .map((row) => ({
-            ...JSON.parse(row.payload),
-            event_id: row.id,
-            origin_server_ts: row.created_at,
-          })),
+        before:
+          rows.length > 50
+            ? {
+                time: page[page.length - 1].created_at,
+                id: page[page.length - 1].id,
+              }
+            : null,
+        events: page.reverse().map((row) => ({
+          ...JSON.parse(row.payload),
+          event_id: row.id,
+          origin_server_ts: row.created_at,
+        })),
       };
     }
     throw new CryptoError("Unknown encryption action.", 400);

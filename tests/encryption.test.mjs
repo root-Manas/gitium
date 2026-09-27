@@ -153,6 +153,7 @@ test("encrypted service: identity, consent, key claims, offline delivery, replay
     assert.deepEqual(first.ids, second.ids);
     await bob.sync();
     const received = (await b.call("messages", b.context)).events[0];
+    await assert.rejects(()=>bob.decrypt(state.room,{...received,sender:'@33:gitium.local'}));
     assert.equal(
       await bob.decrypt(state.room, received),
       "private only in the browser",
@@ -161,6 +162,13 @@ test("encrypted service: identity, consent, key claims, offline delivery, replay
       () => bob.decrypt(state.room, { ...received, event_id: "$changed" }),
       /identity/,
     );
+    // Equal timestamps still paginate without duplicate or skipped IDs.
+    for(let i=0;i<53;i++)db.prepare('INSERT INTO e2ee_events(id,room_id,epoch,sender_id,device_id,txn,payload,created_at) VALUES(?,?,?,?,?,?,?,?)').run('$history-'+String(i).padStart(3,'0'),state.room,state.epoch,'11',alice.deviceId,'history-'+i,JSON.stringify(event),Date.now()+1000);
+    const firstPage=await b.call('messages',b.context);
+    const olderPage=await b.call('messages',{...b.context,before:firstPage.before});
+    assert.equal(firstPage.events.length,50);assert.equal(olderPage.events.length,4);assert.equal(olderPage.before,null);
+    assert.equal(new Set([...firstPage.events,...olderPage.events].map(e=>e.event_id)).size,54);
+    db.exec("DELETE FROM e2ee_events WHERE txn LIKE 'history-%'");
     await assert.rejects(() =>
       bob.decrypt(state.room, {
         ...received,

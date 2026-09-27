@@ -33,7 +33,7 @@ Browse open GitHub issues by language, repository, recent activity, and the proj
 
 Room invitations have Join and Decline controls. Direct chats require mutual consent, and a declined request cannot be sent again by its original sender. Blocking stops DMs and new invitations between the two accounts. Existing shared rooms keep their membership rules; leave a room to stop participating there. Repository and organization rooms are created by Gitium users and are not official GitHub-managed spaces.
 
-Chats are **not yet end-to-end encrypted**; Gitium's server processes message text.
+New messages are **end-to-end encrypted** on your devices. Compare device fingerprints before chatting, and keep an encrypted recovery file for your history. Earlier plaintext messages stay in a separate history section; they are not converted to encrypted messages. Encrypted messages are retained for 30 days.
 
 ## Bring your stars along
 

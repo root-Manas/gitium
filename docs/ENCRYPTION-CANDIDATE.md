@@ -1,53 +1,34 @@
-# Local encrypted-chat candidate
+# Encrypted messaging
 
-Status: implemented locally on `local/encrypted-chat`. **Not merged, pushed, deployed, or independently reviewed.** The live application still processes plaintext chat. Do not advertise live end-to-end encryption.
+New messages use the pinned Matrix Rust crypto WASM SDK 18.9.0: Olm distributes device keys and Megolm encrypts messages. This is Gitium's integration, not Signal's protocol, and makes no post-quantum claim.
 
-## What works
+## Trust and recovery
 
-- Browser encryption uses the pinned Matrix Rust crypto WASM package 18.9.0 (Olm for device-key delivery; Megolm for message encryption). Gitium does not implement its own cipher.
-- The GitHub session identifies the account. Each device also signs backend requests using its SDK-managed Ed25519 key. Short timestamp windows, nonce storage and per-account request limits reject captured request replays.
-- Device identities are immutable. At most four active devices per account can register. Public device and one-time-key signatures are checked before storage.
-- One-time keys are claimed using an atomic delete-and-return statement. Consumption tombstones prevent a retry of an old upload from resurrecting a used key.
-- Key delivery queues contain encrypted Olm payloads. Recipients acknowledge only after the SDK processes them. Delivery receipts survive acknowledgements so retries do not enqueue duplicates.
-- The sender explicitly reviews room members and verifies each device fingerprint through another trusted channel. A new device stops sending until verified. A new device does not inherit trust from its GitHub login.
-- Database triggers advance a room version when membership, DM consent, blocks or devices change. Sends and key-delivery writes require that version and current membership within the write statement.
-- The candidate rotates the Megolm sending session for every message. A removed member cannot decrypt later messages using an earlier session key.
-- Encrypted contents bind the application message ID and room version. The SDK authenticates ciphertext; a persistent replay ledger also rejects reassignment of already-seen ciphertext.
-- Browser keys use passphrase-encrypted IndexedDB. A Web Lock allows one unlocked tab per device store. Five minutes without input locks the UI. Unlock passphrases are never sent to the backend.
-- Enabling encryption blocks new plaintext sends for that conversation. Existing plaintext history is not converted. Encrypted history is a separate stream; there is no automatic fallback to plaintext.
-- Encrypted recovery-file export and import work. Imported room keys do not restore device identity. Recovered history that lacks verified sender information stays hidden unless the user explicitly chooses to show it, with unverified attribution labels.
+- GitHub authenticates accounts. Each device signs requests using its SDK Ed25519 identity. Nonces, timestamp windows and request limits reject replay.
+- Compare fingerprints through another trusted channel before approving devices. New devices require a new review; a GitHub login alone does not establish device trust.
+- Membership, consent, blocks and device changes advance the conversation epoch. Writes check current membership and epoch atomically. Every message starts a fresh Megolm sending session, so old keys do not decrypt later messages.
+- Encrypted content binds sender, message ID and epoch. Persistent replay tracking rejects ciphertext reassignment. Consumed one-time keys cannot be uploaded again for an active identity.
+- Browser keys use passphrase-encrypted IndexedDB, one unlocked tab per store and a five-minute inactivity lock. Passphrases never reach the server.
+- Export an encrypted recovery file before losing a device. Imports recover message keys, not identity or trust. Unverified recovered attribution is hidden unless explicitly requested.
+- Account-authenticated device reset revokes all of that account's devices and advances affected conversation epochs. It cannot recover old keys. Other participants must verify the new device.
+- Old plaintext messages remain separately labelled and can be deleted. New plaintext sends and edits are always rejected, including when the encryption flag is disabled.
 
-## Files and local setup
+## Storage and cost
 
-`src/lib/encryption-service.mjs` is the account/device authorization and ciphertext-storage service. `/api/encryption` binds it to NextAuth. `public/e2ee/` contains the browser adapter and verification UI. The SDK assets are copied from the pinned npm package by `scripts/prepare-encryption.mjs`; generated vendor files are ignored by Git.
+The hourly Worker job removes ciphertext older than 30 days and delivery receipts older than 90 days in bounded batches. Active consumed-key tombstones remain to prevent key reuse. History pages contain at most 50 messages. The ciphertext payload budget is 96 MiB, including a conservative per-record allowance; other tables and indexes also use D1 storage.
 
-`encryption-schema.sql` is additive and separate from the live schema. It has **not** been applied to the production database. The candidate Worker permits larger bounded ciphertext payloads; that Worker change is also local only.
+A local two-device first send after registration used four backend requests, 33 SQL statements and 4,277 bytes of request JSON. This excludes trigger work, setup, recipient sync, responses and transport overhead. It is not a billing or concurrency guarantee. Free provider limits still apply.
 
-For isolated automated validation:
+## Verification
 
-1. Run `npm ci`, then `npm test`.
-2. Run `npm run build -- --webpack`.
-3. Run `node tests/encryption.browser.mjs` to start an isolated Next server and in-memory SQLite bridge with synthetic sessions, exercise two real browser contexts, then close them. No production credentials or database are used. Playwright and Chrome paths can be supplied through `GITIUM_PLAYWRIGHT_PATH` and `GITIUM_CHROME_PATH`.
+Run `npm test`, `npm run build -- --webpack`, `npm run test:chat`, and `node tests/encryption.browser.mjs`. The browser suite uses synthetic sessions and an isolated database, two real browser contexts, verified-device messaging, recovery/reset, plaintext downgrade rejection, restart, cross-tab locking, blocking and mobile/theme checks. Supply Playwright and Chrome paths using `GITIUM_PLAYWRIGHT_PATH` and `GITIUM_CHROME_PATH` when needed. No test connects to production data.
 
-The local page `/encrypted-chat` and API are disabled unless `GITIUM_E2EE_ENABLED=local-candidate`. A manual local environment needs its own OAuth setup and database containing both schemas. Do not point this branch at the production database.
-
-## Evidence from this pass
-
-- Real browser round trip between two separately verified devices; the message and unlock passphrase were absent from captured API request bodies and stored ciphertext.
-- Plaintext downgrade rejection, device-store restart, cross-tab lock, consent revocation, 320/390/1440px layouts and light/dark themes.
-- Service checks for identity mismatch, request replay, unauthorized conversation access, concurrent one-time-key claims, consumed-key reupload, tampering, changed message IDs, recovery, newly added devices, revoked devices, group membership changes and post-removal decryption failure.
-- Local two-device first-send measurement after initial device registration: **4 backend requests, 33 SQL statements, about 4.2 KB of request JSON**. This excludes initial registration, recipient sync, HTTP/TLS overhead, database trigger work and response bytes. It is not a D1 billing measurement or a concurrency guarantee.
-
-## Before a release
-
-1. Obtain an independent review of the full adapter, membership changes, key lifecycle, recovery treatment and migration strategy. Upstream library audits do not audit Gitium's integration.
-2. Measure real Worker/D1 usage under multi-device groups, retries and concurrent sends. Establish retention and cleanup for delivery receipts, consumed-key records and ciphertext. The per-message rotation policy needs a documented cost/security decision before broad use.
-3. Exercise prolonged offline delivery, crash points, device loss, deliberate database/server misbehavior and interleaved membership changes at scale. Test additional browsers and mobile storage eviction.
-4. Finish product integration: a device-loss/reset journey, clear handling of legacy plaintext history, history pagination and migration notices. The current candidate requires manual fingerprint comparison; it is not the finished chat UX.
-5. Agree on the local candidate's release and migration separately. No production encryption flag, schema or Worker change has been enabled in this pass.
+The source review of candidate snapshot `38198f0914479a83f8d3746d77279ac2b6697372` reported no confirmed findings. Release integration, sender binding, retention and reset were subsequently covered by local review and tests. This is not an external cryptographic audit. Generated SDK internals were excluded from the application source review.
 
 ## Limits
 
-The server sees account IDs, device keys, membership, timing and ciphertext size. It can deny service or withhold messages. A compromised browser or malicious JavaScript served by the application's own origin can read unlocked keys and plaintext. Device verification must use an independent trusted channel. Revocation cannot erase messages or keys someone already received. The candidate is not Signal's current protocol and makes no post-quantum claim.
+The server can see participants, public device keys, timing and ciphertext size, and can withhold messages. Compromised browsers or malicious JavaScript from the application origin can read unlocked plaintext and keys. Revocation cannot erase material already received. Clearing browser storage without recovery can permanently lose history. Additional browsers, prolonged offline operation and large-group load need broader field testing.
 
-References: [Matrix crypto WASM](https://matrix-org.github.io/matrix-sdk-crypto-wasm/), [OlmMachine SDK API](https://matrix-org.github.io/matrix-sdk-crypto-wasm/classes/OlmMachine.html).
+Apply the additive schema and updated Worker before enabling `GITIUM_E2EE_ENABLED=enabled`. See [deployment notes](DEPLOYMENT.md). The dedicated `/encrypted-chat` page and Messages share the same client.
+
+References: [Matrix crypto WASM](https://matrix-org.github.io/matrix-sdk-crypto-wasm/), [OlmMachine API](https://matrix-org.github.io/matrix-sdk-crypto-wasm/classes/OlmMachine.html).

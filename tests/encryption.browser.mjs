@@ -82,7 +82,7 @@ const app = spawn(
       GITHUB_SECRET: "test",
       CF_D1_WORKER_URL: "http://127.0.0.1:3219",
       CF_D1_SERVICE_TOKEN: "encryption-test-only",
-      GITIUM_E2EE_ENABLED: "local-candidate",
+      GITIUM_E2EE_ENABLED: "enabled",
     },
     stdio: ["ignore", "pipe", "pipe"],
   },
@@ -134,6 +134,7 @@ try {
     });
     await page.goto(base + "/encrypted-chat");
     await page.locator("#passphrase").fill("unique browser unlock phrase");
+    await page.locator("#confirm-passphrase").fill("unique browser unlock phrase");
     await page.getByRole("button", { name: "Unlock this browser" }).click();
     await page.getByRole("button", { name: "Review conversation" }).waitFor();
   }
@@ -198,6 +199,8 @@ try {
     data: { scope: "dm", target: "id:22", body: "must reject plaintext" },
   });
   assert.equal(plain.status(), 409);
+  const editPlain=await contexts[0].request.patch(base+'/api/messages',{headers:{Origin:base},data:{id:'old-message',body:'must also reject plaintext edits'}});
+  assert.equal(editPlain.status(),409);
   for (const width of [320, 390, 1440])
     for (const theme of ["light", "dark"]) {
       await alice.setViewportSize({ width, height: 900 });
@@ -246,6 +249,25 @@ try {
     .getByText("Encrypted chat request rejected.", { exact: true })
     .waitFor();
   assert.equal(db.prepare("SELECT COUNT(*) n FROM e2ee_events").get().n, 1);
+  db.exec("DELETE FROM chat_blocks");
+  await alice.getByRole('button',{name:'Lock chat',exact:true}).click();
+  await alice.goto(base+'/spaces?dm=id:22');
+  await alice.locator('#passphrase').fill('unique browser unlock phrase');
+  await alice.getByRole('button',{name:'Unlock this browser'}).click();
+  await alice.getByRole('button',{name:'Review conversation'}).click();
+  await alice.getByRole('button',{name:'Approve these members and devices'}).click();
+  await alice.locator('#timeline').getByText('@11:gitium.local: browser-only confidential phrase',{exact:true}).waitFor();
+  assert.equal(await alice.locator('textarea[aria-label="Message"]').count(),0,'No legacy plaintext composer');
+  const rejectedReset=await contexts[0].request.post(base+'/api/encryption/reset',{headers:{Origin:base},data:{confirmation:'no'}});
+  assert.equal(rejectedReset.status(),400);
+  const foreignReset=await contexts[0].request.post(base+'/api/encryption/reset',{headers:{Origin:'https://other.invalid'},data:{confirmation:'RESET MY DEVICES'}});
+  assert.equal(foreignReset.status(),403);
+  const reset=await contexts[0].request.post(base+'/api/encryption/reset',{headers:{Origin:base},data:{confirmation:'RESET MY DEVICES'}});
+  assert.equal(reset.status(),200);
+  assert.equal(db.prepare("SELECT COUNT(*) n FROM e2ee_devices WHERE user_id='11' AND revoked=0").get().n,0);
+  assert.equal(db.prepare("SELECT COUNT(*) n FROM e2ee_devices WHERE user_id='22' AND revoked=0").get().n,1);
+  const again=await contexts[0].request.post(base+'/api/encryption/reset',{headers:{Origin:base},data:{confirmation:'RESET MY DEVICES'}});
+  assert.equal(again.status(),429);
   assert.deepEqual(errors, []);
   console.log(
     "PASS: actual browser encryption, two verified devices, no plaintext on wire/database, plaintext downgrade rejection, cross-tab lock, restart, revocation, mobile and themes.",

@@ -1218,3 +1218,5 @@ body code,
   }
   .explore-controls:has(select[aria-label="Essential category"]) label{flex-basis:100%}
 }
+
+.legacy-history{padding:14px 18px;border-bottom:1px solid var(--line);font-size:12px;color:var(--muted)}.legacy-history summary{cursor:pointer}.legacy-history>p{line-height:1.6}.chat-main:has(.encryption-page){max-height:none}.chat-main .encryption-page{padding:18px}.chat-main .encryption-page .page-heading{display:none}.encryption-page details{padding:14px 0}.encryption-page summary{cursor:pointer;font-size:13px}.encryption-page #crypto-status{font-size:13px;line-height:1.6}.encryption-page .crypto-message{padding:12px;border-bottom:1px solid var(--line);white-space:pre-wrap;font-size:13px;line-height:1.6}.encryption-page .crypto-message small{display:block;color:var(--muted);font-size:10px;margin-bottom:7px}.encryption-page #send{margin-top:12px}.encryption-page #timeline{max-height:440px;overflow:auto}
