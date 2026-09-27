@@ -1,9 +1,9 @@
-import { CryptoClient } from './crypto-client.mjs';
-import { HttpTransport } from './http-transport.mjs';
+import { CryptoClient } from "./crypto-client.mjs";
+import { HttpTransport } from "./http-transport.mjs";
 
-export function mount(root){
-  root.classList.add('encryption-page');
-  root.innerHTML=`<style>.encryption-page{overflow-wrap:anywhere}.encryption-page input:not([type=checkbox]),.encryption-page select{min-width:0;max-width:100%;width:100%;box-sizing:border-box;padding:9px;border:1px solid var(--line);border-radius:6px;color:var(--ink);background:var(--paper)}.encryption-page button{max-width:100%;white-space:normal}.encryption-page .chat-consent label{display:block;margin:10px 0}.encryption-page .chat-messages{min-height:100px}.encryption-page #workspace{min-width:0}</style><div class="page-heading"><span class="eyebrow">LOCAL ENCRYPTION CANDIDATE</span><h1>Encrypted conversations.</h1><p>Messages are encrypted in this browser. This integration is not released or independently reviewed.</p></div>
+export function mount(root) {
+  root.classList.add("encryption-page");
+  root.innerHTML = `<style>.encryption-page{overflow-wrap:anywhere}.encryption-page input:not([type=checkbox]),.encryption-page select{min-width:0;max-width:100%;width:100%;box-sizing:border-box;padding:9px;border:1px solid var(--line);border-radius:6px;color:var(--ink);background:var(--paper)}.encryption-page button{max-width:100%;white-space:normal}.encryption-page .chat-consent label{display:block;margin:10px 0}.encryption-page .chat-messages{min-height:100px}.encryption-page #workspace{min-width:0}</style><div class="page-heading"><span class="eyebrow">LOCAL ENCRYPTION CANDIDATE</span><h1>Encrypted conversations.</h1><p>Messages are encrypted in this browser. This integration is not released or independently reviewed.</p></div>
   <p role="status" id="crypto-status"></p>
   <form id="unlock" class="contribute-filters"><label>Device unlock passphrase<input id="passphrase" type="password" minlength="16" autocomplete="off" required></label><button class="issue-search">Unlock this browser</button></form>
   <section id="workspace" hidden><div class="chat-consent"><strong>Your device fingerprint</strong><p id="fingerprint" style="overflow-wrap:anywhere"></p><p>Compare fingerprints through another trusted channel. Do not verify a fingerprint just because it is displayed here. New devices require verification again.</p><button id="lock">Lock chat</button></div>
@@ -11,38 +11,309 @@ export function mount(root){
   <div id="verification" class="chat-consent"></div><div id="timeline" class="chat-messages" aria-live="polite"></div>
   <form id="send" class="chat-composer"><textarea id="message" aria-label="Encrypted message" maxlength="500" placeholder="Verify devices and approve membership first" disabled></textarea><button id="send-button" disabled>Send encrypted message</button></form>
   <div class="chat-consent"><button id="refresh">Refresh messages</button><button id="export">Download encrypted recovery file</button><label>Recovery passphrase<input id="recovery-pass" type="password" autocomplete="off" minlength="20"></label><label>Import recovery file<input id="recovery-file" type="file" accept=".txt"></label><p>Recovery files contain message keys, not your device identity. Keep the file and passphrase separately. Restored devices still need verification.</p><label><input type="checkbox" id="recovered-history"> Show recovered history with unverified sender attribution</label><div id="devices"></div></div></section>`;
-  const el=id=>root.querySelector('#'+id);let client,transport,state,approved=false,busy=false,session,disposed=false;let idle;
-  const message=text=>{el('crypto-status').textContent=text;};
-  const setEnabled=()=>{root.querySelectorAll('button:not(#lock)').forEach(button=>{button.disabled=busy;});el('message').disabled=!approved||busy;el('send-button').disabled=!approved||busy;};
-  const run=fn=>async event=>{event?.preventDefault();if(busy)return;busy=true;setEnabled();try{await fn();}catch(error){approved=false;message(error.message);}finally{busy=false;setEnabled();}};
-  const resetIdle=()=>{clearTimeout(idle);if(client)idle=setTimeout(lock,5*60000);};
-  function lock(){clearTimeout(idle);client?.close();client=null;state=null;approved=false;el('workspace').hidden=true;el('unlock').hidden=false;el('timeline').replaceChildren();el('verification').replaceChildren();el('message').value='';el('passphrase').value='';el('recovery-pass').value='';el('recovery-file').value='';message('Chat locked.');}
-  async function timeline(){
-    if(!state||!approved)return;await client.sync();const {events}=await transport.call('messages',{room:state.room,epoch:state.epoch});
-    el('timeline').replaceChildren();for(const event of events){const item=document.createElement('p');try{item.textContent=event.sender+': '+await client.decrypt(state.room,event);}catch{try{if(!el('recovered-history').checked)throw new Error();item.textContent='Recovered text (sender not verified): '+await client.decrypt(state.room,event,true);}catch{item.textContent='Encrypted message — unable to verify or decrypt on this device.';}}el('timeline').append(item);}
+  const el = (id) => root.querySelector("#" + id);
+  let client,
+    transport,
+    state,
+    approved = false,
+    busy = false,
+    session,
+    disposed = false;
+  let idle;
+  const message = (text) => {
+    el("crypto-status").textContent = text;
+  };
+  const setEnabled = () => {
+    root.querySelectorAll("button:not(#lock)").forEach((button) => {
+      button.disabled = busy;
+    });
+    el("message").disabled = !approved || busy;
+    el("send-button").disabled = !approved || busy;
+  };
+  const run = (fn) => async (event) => {
+    event?.preventDefault();
+    if (busy) return;
+    busy = true;
+    setEnabled();
+    try {
+      await fn();
+    } catch (error) {
+      approved = false;
+      message(error.message);
+    } finally {
+      busy = false;
+      setEnabled();
+    }
+  };
+  const resetIdle = () => {
+    clearTimeout(idle);
+    if (client) idle = setTimeout(lock, 5 * 60000);
+  };
+  function lock() {
+    clearTimeout(idle);
+    client?.close();
+    client = null;
+    state = null;
+    approved = false;
+    el("workspace").hidden = true;
+    el("unlock").hidden = false;
+    el("timeline").replaceChildren();
+    el("verification").replaceChildren();
+    el("message").value = "";
+    el("passphrase").value = "";
+    el("recovery-pass").value = "";
+    el("recovery-file").value = "";
+    message("Chat locked.");
   }
-  async function deviceList(){const {devices}=await transport.call('devices');el('devices').replaceChildren();for(const device of devices){const line=document.createElement('p');line.textContent=device.device_id+(device.revoked?' — revoked':'');if(!device.revoked){const button=document.createElement('button');button.textContent='Revoke device';button.onclick=run(async()=>{await transport.call('revoke',{device:device.device_id});if(device.device_id===client.deviceId)lock();else {approved=false;await deviceList();message('Device revoked. Review room membership again.');}});line.append(button);}el('devices').append(line);}}
-  el('unlock').onsubmit=run(async()=>{
-    session=await (await fetch('/api/auth/session',{cache:'no-store'})).json();if(!session.user?.id)throw new Error('Sign in to Gitium first, then return here.');
-    let device=localStorage.getItem('gitium-crypto-device:'+session.user.id);if(!device){device='GITIUM_'+crypto.randomUUID().replaceAll('-','').toUpperCase();localStorage.setItem('gitium-crypto-device:'+session.user.id,device);}
-    transport=new HttpTransport();client=await CryptoClient.open(session.user.id,device,transport,'gitium-crypto:'+session.user.id+':'+device,el('passphrase').value);el('passphrase').value='';
-    if(disposed){client.close();return;}el('unlock').hidden=true;el('workspace').hidden=false;el('fingerprint').textContent=client.fingerprint();resetIdle();
-    const [rooms,requests]=await Promise.all(['/api/rooms','/api/chat-requests'].map(async path=>{const response=await fetch(path,{cache:'no-store'});if(!response.ok)throw new Error('Could not load your conversations.');return response.json();}));
-    el('conversation').replaceChildren();for(const room of rooms.rooms){const option=document.createElement('option');option.value=JSON.stringify({scope:'room',target:room.id});option.textContent=room.target;el('conversation').append(option);}for(const peer of requests.requests.filter(item=>item.status==='accepted')){const option=document.createElement('option');option.value=JSON.stringify({scope:'dm_v2',target:[session.user.id,peer.id].sort().join(':')});option.textContent='Direct chat: '+peer.login;el('conversation').append(option);}
-    await deviceList();message('Device unlocked. Select a conversation to review its members and devices.');
+  async function timeline() {
+    if (!state || !approved) return;
+    await client.sync();
+    const { events } = await transport.call("messages", {
+      room: state.room,
+      epoch: state.epoch,
+    });
+    el("timeline").replaceChildren();
+    for (const event of events) {
+      const item = document.createElement("p");
+      try {
+        item.textContent =
+          event.sender + ": " + (await client.decrypt(state.room, event));
+      } catch {
+        try {
+          if (!el("recovered-history").checked) throw new Error();
+          item.textContent =
+            "Recovered text (sender not verified): " +
+            (await client.decrypt(state.room, event, true));
+        } catch {
+          item.textContent =
+            "Encrypted message — unable to verify or decrypt on this device.";
+        }
+      }
+      el("timeline").append(item);
+    }
+  }
+  async function deviceList() {
+    const { devices } = await transport.call("devices");
+    el("devices").replaceChildren();
+    for (const device of devices) {
+      const line = document.createElement("p");
+      line.textContent =
+        device.device_id + (device.revoked ? " — revoked" : "");
+      if (!device.revoked) {
+        const button = document.createElement("button");
+        button.textContent = "Revoke device";
+        button.onclick = run(async () => {
+          await transport.call("revoke", { device: device.device_id });
+          if (device.device_id === client.deviceId) lock();
+          else {
+            approved = false;
+            await deviceList();
+            message("Device revoked. Review room membership again.");
+          }
+        });
+        line.append(button);
+      }
+      el("devices").append(line);
+    }
+  }
+  el("unlock").onsubmit = run(async () => {
+    session = await (
+      await fetch("/api/auth/session", { cache: "no-store" })
+    ).json();
+    if (!session.user?.id)
+      throw new Error("Sign in to Gitium first, then return here.");
+    let device = localStorage.getItem(
+      "gitium-crypto-device:" + session.user.id,
+    );
+    if (!device) {
+      device =
+        "GITIUM_" + crypto.randomUUID().replaceAll("-", "").toUpperCase();
+      localStorage.setItem("gitium-crypto-device:" + session.user.id, device);
+    }
+    transport = new HttpTransport();
+    client = await CryptoClient.open(
+      session.user.id,
+      device,
+      transport,
+      "gitium-crypto:" + session.user.id + ":" + device,
+      el("passphrase").value,
+    );
+    el("passphrase").value = "";
+    if (disposed) {
+      client.close();
+      return;
+    }
+    el("unlock").hidden = true;
+    el("workspace").hidden = false;
+    el("fingerprint").textContent = client.fingerprint();
+    resetIdle();
+    const [rooms, requests] = await Promise.all(
+      ["/api/rooms", "/api/chat-requests"].map(async (path) => {
+        const response = await fetch(path, { cache: "no-store" });
+        if (!response.ok) throw new Error("Could not load your conversations.");
+        return response.json();
+      }),
+    );
+    el("conversation").replaceChildren();
+    for (const room of rooms.rooms) {
+      const option = document.createElement("option");
+      option.value = JSON.stringify({ scope: "room", target: room.id });
+      option.textContent = room.target;
+      el("conversation").append(option);
+    }
+    for (const peer of requests.requests.filter(
+      (item) => item.status === "accepted",
+    )) {
+      const option = document.createElement("option");
+      option.value = JSON.stringify({
+        scope: "dm_v2",
+        target: [session.user.id, peer.id].sort().join(":"),
+      });
+      option.textContent = "Direct chat: " + peer.login;
+      el("conversation").append(option);
+    }
+    await deviceList();
+    message(
+      "Device unlocked. Select a conversation to review its members and devices.",
+    );
   });
-  el('open').onsubmit=run(async()=>{
-    approved=false;state=await transport.call('open',JSON.parse(el('conversation').value));transport.context={room:state.room,epoch:state.epoch};
-    const ids=state.members.map(item=>'@'+item.user_id+':gitium.local');await client.discover(ids);el('verification').replaceChildren();el('timeline').replaceChildren();
-    const heading=document.createElement('p');heading.textContent='Members: '+state.members.map(item=>item.github_login).join(', ')+'. Review every device below.';el('verification').append(heading);
-    for(const member of state.members){const devices=await client.devices('@'+member.user_id+':gitium.local');if(!devices.length){const missing=document.createElement('p');missing.textContent=member.github_login+' must unlock encrypted chat on a device first.';el('verification').append(missing);}for(const device of devices){const line=document.createElement('div');line.className='chat-consent';const label=document.createElement('p');label.textContent=member.github_login+' / '+device.id+(device.verified?' — verified':' — verification needed');line.append(label);if(!device.verified){const input=document.createElement('input');input.placeholder='Paste fingerprint received through a trusted channel';input.setAttribute('aria-label','Fingerprint for '+member.github_login);const button=document.createElement('button');button.textContent='Verify device';button.onclick=run(async()=>{await client.verify('@'+member.user_id+':gitium.local',device.id,input.value.trim());label.textContent=member.github_login+' / '+device.id+' — verified';input.remove();button.remove();message('Device verified.');});line.append(input,button);}el('verification').append(line);}}
-    const approve=document.createElement('button');approve.textContent='Approve these members and devices';approve.onclick=run(async()=>{const latest=await transport.call('open',JSON.parse(el('conversation').value));if(latest.epoch!==state.epoch)throw new Error('Membership or devices changed. Review the conversation again.');for(const id of ids){const devices=await client.devices(id);if(!devices.length||devices.some(item=>!item.verified))throw new Error('Verify every member’s devices first.');}client.approveRoster(state.room,ids);approved=true;await timeline();message('Ready. Messages will be encrypted before leaving this browser.');});el('verification').append(approve);
-    message('Compare fingerprints before approving. Existing plaintext messages are not converted.');
+  el("open").onsubmit = run(async () => {
+    approved = false;
+    state = await transport.call("open", JSON.parse(el("conversation").value));
+    transport.context = { room: state.room, epoch: state.epoch };
+    const ids = state.members.map(
+      (item) => "@" + item.user_id + ":gitium.local",
+    );
+    await client.discover(ids);
+    el("verification").replaceChildren();
+    el("timeline").replaceChildren();
+    const heading = document.createElement("p");
+    heading.textContent =
+      "Members: " +
+      state.members.map((item) => item.github_login).join(", ") +
+      ". Review every device below.";
+    el("verification").append(heading);
+    for (const member of state.members) {
+      const devices = await client.devices(
+        "@" + member.user_id + ":gitium.local",
+      );
+      if (!devices.length) {
+        const missing = document.createElement("p");
+        missing.textContent =
+          member.github_login +
+          " must unlock encrypted chat on a device first.";
+        el("verification").append(missing);
+      }
+      for (const device of devices) {
+        const line = document.createElement("div");
+        line.className = "chat-consent";
+        const label = document.createElement("p");
+        label.textContent =
+          member.github_login +
+          " / " +
+          device.id +
+          (device.verified ? " — verified" : " — verification needed");
+        line.append(label);
+        if (!device.verified) {
+          const input = document.createElement("input");
+          input.placeholder =
+            "Paste fingerprint received through a trusted channel";
+          input.setAttribute(
+            "aria-label",
+            "Fingerprint for " + member.github_login,
+          );
+          const button = document.createElement("button");
+          button.textContent = "Verify device";
+          button.onclick = run(async () => {
+            await client.verify(
+              "@" + member.user_id + ":gitium.local",
+              device.id,
+              input.value.trim(),
+            );
+            label.textContent =
+              member.github_login + " / " + device.id + " — verified";
+            input.remove();
+            button.remove();
+            message("Device verified.");
+          });
+          line.append(input, button);
+        }
+        el("verification").append(line);
+      }
+    }
+    const approve = document.createElement("button");
+    approve.textContent = "Approve these members and devices";
+    approve.onclick = run(async () => {
+      const latest = await transport.call(
+        "open",
+        JSON.parse(el("conversation").value),
+      );
+      if (latest.epoch !== state.epoch)
+        throw new Error(
+          "Membership or devices changed. Review the conversation again.",
+        );
+      for (const id of ids) {
+        const devices = await client.devices(id);
+        if (!devices.length || devices.some((item) => !item.verified))
+          throw new Error("Verify every member’s devices first.");
+      }
+      client.approveRoster(state.room, ids);
+      approved = true;
+      await timeline();
+      message("Ready. Messages will be encrypted before leaving this browser.");
+    });
+    el("verification").append(approve);
+    message(
+      "Compare fingerprints before approving. Existing plaintext messages are not converted.",
+    );
   });
-  el('send').onsubmit=run(async()=>{if(!approved||!state)throw new Error('Review and approve the conversation first.');const txn=crypto.randomUUID();const event=await client.encrypt(state.room,el('message').value,{id:'$'+txn,epoch:state.epoch});await transport.call('send',{room:state.room,epoch:state.epoch,event,txn});el('message').value='';await timeline();message('Encrypted message sent.');});
-  el('refresh').onclick=run(timeline);el('recovered-history').onchange=run(timeline);el('lock').onclick=lock;
-  el('export').onclick=run(async()=>{const backup=await client.exportRecovery(el('recovery-pass').value);el('recovery-pass').value='';const url=URL.createObjectURL(new Blob([backup],{type:'text/plain'}));const link=document.createElement('a');link.href=url;link.download='gitium-encrypted-message-keys.txt';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);message('Encrypted recovery file downloaded.');});
-  el('recovery-file').onchange=run(async()=>{const file=el('recovery-file').files[0];if(!file||file.size>5000000)throw new Error('Choose a recovery file smaller than 5 MB.');await client.importRecovery(await file.text(),el('recovery-pass').value);el('recovery-pass').value='';el('recovery-file').value='';message('Message keys imported. Device verification is still required.');});
-  root.addEventListener('pointerdown',resetIdle);root.addEventListener('keydown',resetIdle);
-  return ()=>{disposed=true;lock();root.removeEventListener('pointerdown',resetIdle);root.removeEventListener('keydown',resetIdle);};
+  el("send").onsubmit = run(async () => {
+    if (!approved || !state)
+      throw new Error("Review and approve the conversation first.");
+    const txn = crypto.randomUUID();
+    const event = await client.encrypt(state.room, el("message").value, {
+      id: "$" + txn,
+      epoch: state.epoch,
+    });
+    await transport.call("send", {
+      room: state.room,
+      epoch: state.epoch,
+      event,
+      txn,
+    });
+    el("message").value = "";
+    await timeline();
+    message("Encrypted message sent.");
+  });
+  el("refresh").onclick = run(timeline);
+  el("recovered-history").onchange = run(timeline);
+  el("lock").onclick = lock;
+  el("export").onclick = run(async () => {
+    const backup = await client.exportRecovery(el("recovery-pass").value);
+    el("recovery-pass").value = "";
+    const url = URL.createObjectURL(new Blob([backup], { type: "text/plain" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "gitium-encrypted-message-keys.txt";
+    link.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    message("Encrypted recovery file downloaded.");
+  });
+  el("recovery-file").onchange = run(async () => {
+    const file = el("recovery-file").files[0];
+    if (!file || file.size > 5000000)
+      throw new Error("Choose a recovery file smaller than 5 MB.");
+    await client.importRecovery(await file.text(), el("recovery-pass").value);
+    el("recovery-pass").value = "";
+    el("recovery-file").value = "";
+    message("Message keys imported. Device verification is still required.");
+  });
+  root.addEventListener("pointerdown", resetIdle);
+  root.addEventListener("keydown", resetIdle);
+  return () => {
+    disposed = true;
+    lock();
+    root.removeEventListener("pointerdown", resetIdle);
+    root.removeEventListener("keydown", resetIdle);
+  };
 }
