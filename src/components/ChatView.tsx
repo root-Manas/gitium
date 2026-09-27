@@ -52,7 +52,7 @@ export function ChatView({ initialRoom, initialDm }: { initialRoom: string; init
       const data = await response.json();
       if (activeKey.current !== `${current.scope}:${current.target}`) return;
       if (!response.ok) throw new Error(data.error || 'Could not load messages.');
-      if (current.scope === 'dm' && data.peer && current.target !== `id:${data.peer.id}`) {
+      if (current.scope === 'dm' && data.peer && (current.target !== `id:${data.peer.id}` || current.label !== data.peer.login)) {
         const next = { scope: 'dm' as const, target: `id:${data.peer.id}`, label: data.peer.login };
         activeKey.current = `dm:${next.target}`;
         setCurrent(next);

@@ -6,4 +6,8 @@ The Worker expects a secret named `SERVICE_TOKEN`. The app expects `GITHUB_ID`, 
 
 Create or update D1 tables with `npm run db:setup`. Deploy the Worker with `npm run worker:deploy`. Gitium follows its connected GitHub repository on Vercel. The OAuth callback URL is `https://gitium.vercel.app/api/auth/callback/github` for the production app.
 
-The app is sized for Vercel Hobby and Cloudflare Workers/D1 Free. Signed-in GitHub requests count against each user's GitHub API limits. Chat refreshes every 15 seconds while a room is open. Free plans can impose limits and availability restrictions; review the provider terms before broader use.
+The app is sized for Vercel Hobby and Cloudflare Workers/D1 Free. Signed-in GitHub requests count against each user's GitHub API limits. Chat refreshes every 30 seconds while a room is open and the tab is visible. Public graphs and leaderboards use shared caching. Free plans can impose limits and availability restrictions; review the provider terms before broader use.
+
+Private messages use stable GitHub account IDs. Legacy username-based messages and invitations are not served by the new chat API; never migrate those records by assuming the current username owner is the original participant. Chats are access-controlled but not end-to-end encrypted. Encryption work stays local until its full lifecycle is verified.
+
+After a production build, `npm run test:chat` tests real handlers with synthetic sessions and an in-memory SQLite bridge. It overrides provider settings and GitHub responses; it never connects to the production database.

@@ -29,6 +29,7 @@ export function EventCard({ event, reviewed = false, onReview }: { event: FeedEv
     () => false
   );
   function toggleSave() {
+    if (event.isPrivate) return;
     try {
       const items = JSON.parse(localStorage.getItem('gitium-saved') || '{}') as Record<string, FeedEvent>;
       if (items[event.id]) delete items[event.id]; else items[event.id] = event;
@@ -43,7 +44,7 @@ export function EventCard({ event, reviewed = false, onReview }: { event: FeedEv
       <div className="event-meta"><span className="event-type">{event.type.replace(/Event$/, '').replace(/([a-z])([A-Z])/g, '$1 $2').toUpperCase()}</span>{event.isPrivate && <span className="private-tag"><LockKeyhole size={11} /> Private</span>}<time dateTime={event.createdAt}>{dateLabel(event.createdAt)}</time></div>
       <p className="event-line"><Link href={`/u/${event.actor}`} className="actor">{event.actor}</Link> <span>{event.action}</span> <a href={`https://github.com/${event.repo}`} target="_blank" rel="noopener noreferrer" className="repo-link">{event.repo}</a></p>
       <a href={event.url} target="_blank" rel="noopener noreferrer" className="event-detail"><span>{event.detail}</span><ArrowUpRight size={16} /></a>
-      <div className="event-actions">{onReview && <button type="button" onClick={onReview} className={reviewed ? 'reviewed' : ''}><Check size={16} /> {reviewed ? 'Read' : 'Mark read'}</button>}<button type="button" onClick={toggleSave} className={saved ? 'saved' : ''}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} /> {saved ? 'Saved' : 'Save'}</button><a href={event.url} target="_blank" rel="noopener noreferrer">Open on GitHub <ArrowUpRight size={14} /></a></div>
+      <div className="event-actions">{onReview && <button type="button" onClick={onReview} className={reviewed ? 'reviewed' : ''}><Check size={16} /> {reviewed ? 'Read' : 'Mark read'}</button>}<button type="button" onClick={toggleSave} disabled={event.isPrivate} title={event.isPrivate ? 'Private activity is not saved in this browser' : undefined} className={saved ? 'saved' : ''}><Bookmark size={17} fill={saved ? 'currentColor' : 'none'} /> {saved ? 'Saved' : 'Save'}</button><a href={event.url} target="_blank" rel="noopener noreferrer">Open on GitHub <ArrowUpRight size={14} /></a></div>
     </div>
   </article>;
 }

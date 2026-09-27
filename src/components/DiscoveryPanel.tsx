@@ -33,7 +33,7 @@ export function DiscoveryPanel({ example }: { example: ProjectRecommendation[] }
   }, [userId]);
 
   const result = personal && personal.userId === userId ? personal.result : null;
-  const projects = userId ? result?.projects || [] : example;
+  const projects = useMemo(() => userId ? result?.projects || [] : example, [userId, result, example]);
   const visible = useMemo(() => sharedOnly ? projects.filter(item => item.starredBy.length > 1) : projects, [projects, sharedOnly]);
   const waiting = status === 'loading' || (!!userId && !result && !error);
 
