@@ -28,13 +28,30 @@ const headers = (token?: string) => ({
   ...(token ? { Authorization: `Bearer ${token}` } : {})
 });
 
+export class GitHubError extends Error {
+  status: number;
+  retryAfter: number;
+  constructor(status: number, retryAfter = 60) {
+    super(status === 401 ? 'Reconnect GitHub to continue.' : status === 403 || status === 429 ? 'GitHub rate limit reached. Wait a minute before retrying.' : `GitHub returned ${status}.`);
+    this.status = status;
+    this.retryAfter = retryAfter;
+  }
+}
 export async function githubGet<T>(path: string, revalidate = 120, token?: string): Promise<T> {
   const response = await fetch(`https://api.github.com${path}`, { headers: headers(token), ...(token ? { cache: 'no-store' as const } : { next: { revalidate } }) });
   if (!response.ok) {
-    if (response.status === 403 || response.status === 429) throw new Error('GitHub rate limit reached. Try again in a few minutes.');
-    throw new Error(`GitHub returned ${response.status}.`);
+    throw new GitHubError(response.status, Number(response.headers.get('retry-after')) || 60);
   }
   return response.json() as Promise<T>;
+}
+
+// Only for explicitly public resources. Never use for /user or private feeds.
+export async function githubPublicGet<T>(path: string, revalidate = 300, token?: string): Promise<T> {
+  try { return await githubGet<T>(path, revalidate, token); }
+  catch (error) {
+    if (token && error instanceof GitHubError && error.status === 401) return githubGet<T>(path, revalidate);
+    throw error;
+  }
 }
 
 export const validLogin = (value: string) => /^(?!-)[a-z\d](?:[a-z\d-]{0,37}[a-z\d])?$/i.test(value);

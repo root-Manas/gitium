@@ -1,4 +1,5 @@
 "use client";
+import { ApiNotice } from './ApiNotice';
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { CheckCheck, Github, Radio, RefreshCw } from "lucide-react";
@@ -203,7 +204,7 @@ function FeedViewSession({
                 ? "Loading updates"
                 : `${newCount} new update${newCount === 1 ? "" : "s"}`}
             </strong>
-            <p>Filter what matters, then clear items as you read them.</p>
+            
           </div>
           <button
             type="button"
@@ -278,9 +279,7 @@ function FeedViewSession({
         </div>
       </div>
       {message?.tab === tab && (
-        <div className="status-banner" role="status">
-          {message.text}
-        </div>
+        <ApiNotice message={message.text} />
       )}
       {loading ? (
         <div className="loading-feed">
@@ -335,7 +334,7 @@ function FeedViewSession({
           <Github size={22} />
           <div>
             <strong>Log in to build your own queue.</strong>
-            <p>Your timeline and follows are read directly from GitHub.</p>
+            
           </div>
           <button onClick={() => signIn("github")}>Log in</button>
         </div>

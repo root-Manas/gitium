@@ -6,13 +6,13 @@ import {
   Check,
   Copy,
   GitFork,
-  Search,
   SlidersHorizontal,
   Star,
   X,
 } from "lucide-react";
 import { exploreLanguages, exploreTopics, essentials } from "@/lib/explore";
 import type { ExploreResults } from "@/lib/explore-server";
+import { PageSearch } from "./SiteSearch";
 import { ExploreTabs } from "./ExploreTabs";
 
 type Project = {
@@ -43,7 +43,6 @@ export function ExploreView({
   const [limit, setLimit] = useState(24);
   const [copied, setCopied] = useState(false);
   const first = useRef(true);
-  const searchRef = useRef<HTMLInputElement>(null);
   function change(patch: Record<string, string>, replace = false) {
     const next = replace ? new URLSearchParams() : new URLSearchParams(params);
     next.delete("page");
@@ -67,22 +66,9 @@ export function ExploreView({
       setDraft(new URLSearchParams(value).get("q") || "");
       setLimit(24);
     };
-    const onKey = (event: KeyboardEvent) => {
-      if (
-        event.key === "/" &&
-        !["INPUT", "TEXTAREA", "SELECT"].includes(
-          (event.target as HTMLElement)?.tagName,
-        )
-      ) {
-        event.preventDefault();
-        searchRef.current?.focus();
-      }
-    };
     window.addEventListener("popstate", onPop);
-    window.addEventListener("keydown", onKey);
     return () => {
       window.removeEventListener("popstate", onPop);
-      window.removeEventListener("keydown", onKey);
     };
   }, []);
   useEffect(() => {
@@ -213,9 +199,7 @@ export function ExploreView({
           <h1>
             Find your next project<span>.</span>
           </h1>
-          <p>
-            Browse open-source tools, projects, and the people building them.
-          </p>
+
         </div>
         <button className="share-search" onClick={share}>
           {copied ? <Check size={15} /> : <Copy size={15} />}{" "}
@@ -230,36 +214,7 @@ export function ExploreView({
             change({ view: key }, true);
           }}
         />
-        <div className="explore-searchbox">
-          <Search size={22} />
-          <input
-            ref={searchRef}
-            aria-label="Search Explore"
-            value={draft}
-            maxLength={140}
-            placeholder={
-              view === "essentials"
-                ? "Search 1,000+ tools — backups, notes, media…"
-                : view === "orgs"
-                  ? "Find an organization…"
-                  : "Search GitHub projects…"
-            }
-            onChange={(event) => {
-              setDraft(event.target.value);
-              setLimit(24);
-            }}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") change({ q: draft });
-            }}
-          />
-          {draft ? (
-            <button aria-label="Clear search" onClick={() => change({ q: "" })}>
-              <X size={18} />
-            </button>
-          ) : (
-            <kbd>/</kbd>
-          )}
-        </div>
+        <PageSearch scope={view === "orgs" ? "orgs" : view === "essentials" ? "essentials" : "projects"} value={draft} onChange={value => { setDraft(value); setLimit(24); }} onSubmit={() => change({ q: draft })} placeholder={view === "essentials" ? "Search 1,000+ tools…" : view === "orgs" ? "Find an organization…" : "Search projects…"} />
         {view === "essentials" ? (
           <div className="explore-controls">
             <label>
@@ -275,9 +230,7 @@ export function ExploreView({
                 ))}
               </select>
             </label>
-            <span className="explore-small">
-              Instant search · no sign-in needed
-            </span>
+
           </div>
         ) : (
           <>
@@ -607,8 +560,8 @@ export function ExploreView({
           <p className="explore-small">
             {view === "orgs"
               ? "Ranked by followers or repository count."
-              : "Non-archived projects, excluding forks. Stars and forks are lifetime totals; creation filters do not measure recent growth."}{" "}
-            Search results refresh about every 15 minutes.
+              : "Public projects · lifetime stars and forks."}{" "}
+            
           </p>
         </section>
       )}

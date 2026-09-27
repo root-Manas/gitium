@@ -4,4 +4,4 @@ import { Shell } from '@/components/Shell';
 import { SavedView } from '@/components/SavedView';
 
 export const metadata = { title: 'Saved activity and GitHub stars', robots: { index: false, follow: false }, alternates: { canonical: '/saved' } };
-export default function SavedPage() { return <Shell authReady={authEnabled()} dataReady={dbConfigured()}><SavedView /></Shell>; }
+export default function SavedPage() { return <Shell pageSearch authReady={authEnabled()} dataReady={dbConfigured()}><SavedView /></Shell>; }

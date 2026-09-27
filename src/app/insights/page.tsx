@@ -14,5 +14,5 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 
 export default async function InsightsPage({ searchParams }: { searchParams: Promise<{ login?: string }> }) {
   const params = await searchParams;
-  return <Shell authReady={authEnabled()} dataReady={dbConfigured()}><InsightsView initial={params.login || ''}/></Shell>;
+  return <Shell pageSearch authReady={authEnabled()} dataReady={dbConfigured()}><InsightsView initial={params.login || ''}/></Shell>;
 }

@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { SessionProvider } from '@/components/SessionProvider';
+import { SiteAnalytics } from '@/components/Analytics';
 import './globals.css';
 import './theme.css';
+import './search.css';
 
 const site = 'https://gitium.vercel.app';
 const description = 'Find top GitHub projects and organizations by language and topic. Browse essential open source tools, explore code graphs, and find issues to contribute to.';
@@ -29,5 +31,5 @@ const structuredData = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: "try{document.documentElement.dataset.theme=localStorage.getItem('gitium-theme')||'light'}catch(e){}" }}/><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}/></head><body><SessionProvider>{children}</SessionProvider></body></html>;
+  return <html lang="en" suppressHydrationWarning><head><script dangerouslySetInnerHTML={{ __html: "try{document.documentElement.dataset.theme=localStorage.getItem('gitium-theme')||'light'}catch(e){}" }}/><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}/></head><body><SessionProvider>{children}</SessionProvider><SiteAnalytics /></body></html>;
 }

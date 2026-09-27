@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { createHmac } from 'node:crypto';
 import { json } from '@/lib/api';
-import { githubGet, validLogin } from '@/lib/github';
+import { githubPublicGet, validLogin } from '@/lib/github';
 
 type Commit = { sha: string; html_url: string; author: { login: string } | null; commit: { author: { name: string; date: string } | null; message: string } };
 type Repo = { full_name: string; description: string | null; default_branch: string; html_url: string; private: boolean };
@@ -17,10 +17,10 @@ export async function GET(request: NextRequest) {
     const jwt = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
     const access = typeof jwt?.githubAccessToken === 'string' ? jwt.githubAccessToken : undefined;
     const path = `/repos/${encodeURIComponent(owner)}/${encodeURIComponent(name)}`;
-    const repo = await githubGet<Repo>(path, 600, access);
+    const repo = await githubPublicGet<Repo>(path, 600, access);
     if (repo.private) return json({ error: 'Only public repositories are shown.' }, 403);
     let commits: Commit[];
-    try { commits = await githubGet<Commit[]>(`${path}/commits?per_page=100`, 300, access); }
+    try { commits = await githubPublicGet<Commit[]>(`${path}/commits?per_page=100`, 300, access); }
     catch (error) { if (error instanceof Error && error.message.includes('409')) commits = []; else throw error; }
     const counts = commits.reduce<Record<string, number>>((counts, item) => {
       const date = item.commit.author?.date?.slice(0, 10);

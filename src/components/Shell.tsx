@@ -1,12 +1,12 @@
 "use client";
 import Link from "next/link";
+import { DefaultSearch, SearchHost } from "./SiteSearch";
 import { signIn, signOut, useSession } from "next-auth/react";
 import {
   Bookmark,
   Compass,
   Github,
   LogOut,
-  Search,
   MessageCircle,
   ChartNoAxesCombined,
   Moon,
@@ -16,8 +16,8 @@ import {
   MoreHorizontal,
   X,
 } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
-import { FormEvent, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 
 const links = [
   { href: "/explore", label: "Explore", icon: Compass },
@@ -31,16 +31,21 @@ export function Shell({
   children,
   authReady,
   dataReady,
+  pageSearch = false,
+  searchInitial = "",
+  searchPeople = false,
 }: {
   children: React.ReactNode;
   authReady: boolean;
   dataReady: boolean;
+  pageSearch?: boolean;
+  searchInitial?: string;
+  searchPeople?: boolean;
 }) {
   const { data: session } = useSession();
-  const [search, setSearch] = useState("");
+  const [searchHost, setSearchHost] = useState<HTMLDivElement | null>(null);
   const [more, setMore] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
   useEffect(()=>{
     if(!more)return;
     const outside=(event:PointerEvent)=>{if(!(event.target as Element).closest('#more-navigation, [aria-controls="more-navigation"]'))setMore(false)};
@@ -60,11 +65,6 @@ export function Shell({
       localStorage.setItem("gitium-theme", theme);
     } catch {}
   }
-  function submit(event: FormEvent) {
-    event.preventDefault();
-    if (search.trim())
-      router.push(`/search?q=${encodeURIComponent(search.trim())}`);
-  }
   function navLink(item: (typeof links)[number]) {
     const Icon = item.icon;
     return (
@@ -81,7 +81,7 @@ export function Shell({
     );
   }
   return (
-    <div className="site-shell">
+    <SearchHost.Provider value={searchHost}><div className="site-shell">
       <header className="topbar">
         <div className="topbar-inner">
           <Link href="/explore" className="brand" aria-label="Gitium home">
@@ -99,23 +99,7 @@ export function Shell({
             </span>
             <span>gitium</span>
           </Link>
-          {pathname.startsWith("/explore") ? (
-            <div className="top-context">
-              Discover open source<span>/</span>
-              <strong>Explore</strong>
-            </div>
-          ) : (
-            <form className="top-search" onSubmit={submit}>
-              <Search size={17} />
-              <input
-                aria-label="Search people and repositories"
-                placeholder="Search GitHub…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-              />
-              <kbd>↵</kbd>
-            </form>
-          )}
+          <div className="search-host" ref={setSearchHost}>{!pageSearch && <DefaultSearch key={searchInitial} initial={searchInitial} scope={searchPeople ? "people" : "projects"} />}</div>
           <div className="top-actions">
             <button
               className="theme-toggle"
@@ -214,6 +198,6 @@ export function Shell({
           <span>More</span>
         </button>
       </nav>
-    </div>
+    </div></SearchHost.Provider>
   );
 }

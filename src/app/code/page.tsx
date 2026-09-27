@@ -12,5 +12,5 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 }
 export default async function CodePage({ searchParams }: { searchParams: Promise<{ repo?: string }> }) {
   const params = await searchParams;
-  return <Shell authReady={authEnabled()} dataReady={dbConfigured()}><CodeView initial={params.repo || ''}/></Shell>;
+  return <Shell pageSearch authReady={authEnabled()} dataReady={dbConfigured()}><CodeView initial={params.repo || ''}/></Shell>;
 }

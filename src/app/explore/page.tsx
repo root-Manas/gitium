@@ -22,7 +22,7 @@ export default async function ExplorePage({
   );
   const initial = await loadExplore(params).catch(() => null);
   return (
-    <Shell authReady={authEnabled()} dataReady={dbConfigured()}>
+    <Shell pageSearch authReady={authEnabled()} dataReady={dbConfigured()}>
       <ExploreView
         key={params.toString()}
         initialParams={params.toString()}

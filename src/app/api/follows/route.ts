@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { checkWrite, json } from '@/lib/api';
+import { apiError, checkWrite, json } from '@/lib/api';
 import { getGitHubFollowing, validLogin } from '@/lib/github';
 
 async function identity(request: NextRequest) {
@@ -12,7 +12,7 @@ export async function GET(request: NextRequest) {
   const { access, login } = await identity(request);
   if (!access || !login) return json({ logins: [] });
   try { return json({ logins: await getGitHubFollowing(login, access) }); }
-  catch { return json({ error: 'Could not load your GitHub follows.' }, 502); }
+  catch (error) { return apiError(error); }
 }
 
 async function change(request: NextRequest, method: 'PUT' | 'DELETE') {
@@ -26,7 +26,7 @@ async function change(request: NextRequest, method: 'PUT' | 'DELETE') {
   const response = await fetch(`https://api.github.com/user/following/${encodeURIComponent(login)}`, {
     method, headers: { Authorization: `Bearer ${access}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2026-03-10', 'User-Agent': 'Gitium-web', ...(method === 'PUT' ? { 'Content-Length': '0' } : {}) }, cache: 'no-store'
   });
-  if (response.status === 403) return json({ error: 'Reconnect GitHub to allow follow sync.', reconnect: true }, 403);
+  if (response.status === 401 || response.status === 403) return json({ error: 'Reconnect GitHub to allow follow sync.', reconnect: true }, response.status);
   if (response.status === 404) return json({ error: 'GitHub account not found.' }, 404);
   if (!response.ok) return json({ error: 'GitHub could not update your follows.' }, 502);
   return json({ login, following: method === 'PUT' });

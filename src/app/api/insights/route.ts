@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
-import { json } from '@/lib/api';
+import { apiError, json } from '@/lib/api';
 import { getUser, githubGet, GitHubRepo, validLogin } from '@/lib/github';
 import { estimateAccount } from '@/lib/value';
 import { dbConfigured, queryD1 } from '@/lib/d1';
@@ -39,5 +39,5 @@ export async function GET(request: NextRequest) {
     }
     const languages = Object.entries(repos.reduce<Record<string, number>>((counts, repo) => { if (repo.language) counts[repo.language] = (counts[repo.language] || 0) + 1; return counts; }, {})).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([name, count]) => ({ name, count }));
     return json({ login: profile.login, avatar: profile.avatar_url, contributions, followers, publicRepos, sampledRepos: repos.length, estimate, weeks: calendar.weeks, languages, repos: repos.sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 8).map(repo => ({ name: repo.full_name, stars: repo.stargazers_count, language: repo.language, url: repo.html_url })) });
-  } catch { return json({ error: 'GitHub could not load this account. Check the username or try again soon.' }, 502); }
+  } catch (error) { return apiError(error); }
 }

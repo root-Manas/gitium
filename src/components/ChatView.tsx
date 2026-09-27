@@ -342,13 +342,8 @@ function ChatViewSession({
         <h1>
           Your conversations<span>.</span>
         </h1>
-        <p>
-          Direct messages start with an accepted request. Repository and
-          organization rooms are invitation only. New messages are end-to-end
-          encrypted after device verification. Older messages remain in a
-          separate, read-only history. Blocking stops DMs and new invitations;
-          leave shared rooms to stop participating there.
-        </p>
+        <p>Private, encrypted conversations. By invitation.</p>
+        <details className="catalog-attribution"><summary>How chats work</summary><p>Accept a request or room invitation, then verify devices. Earlier plaintext messages stay in separate history. Blocking stops DMs and new invitations; leave shared rooms to stop participating there.</p></details>
       </div>
       {error && (
         <p className="status-banner" role="alert">

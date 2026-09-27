@@ -9,7 +9,7 @@ export const metadata = {
   alternates: { canonical: '/contribute' },
   keywords: ['good first issue', 'open source contributions', 'GitHub help wanted', 'beginner GitHub issues']
 };
-export default async function ContributePage({ searchParams }: { searchParams: Promise<{ repo?: string }> }) {
-  const { repo } = await searchParams;
-  return <Shell authReady={authEnabled()} dataReady={dbConfigured()}><ContributeView key={repo || ''} initialRepo={repo || ''}/></Shell>;
+export default async function ContributePage({ searchParams }: { searchParams: Promise<{ repo?: string; q?: string }> }) {
+  const { repo, q } = await searchParams;
+  return <Shell pageSearch authReady={authEnabled()} dataReady={dbConfigured()}><ContributeView key={`${repo || ''}:${q || ''}`} initialRepo={repo || ''} initialQuery={q || ''}/></Shell>;
 }
