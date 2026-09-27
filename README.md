@@ -6,7 +6,9 @@ A place to discover open source, meet the people behind it, and find work you wa
 
 **[Open Gitium →](https://gitium.vercel.app)** · [Made by Manas Raj](https://manasraj.vercel.app)
 
-![Explore projects on Gitium](docs/preview.png)
+[![Watch the Gitium demo](docs/preview.png)](https://github.com/root-Manas/gitium/releases/download/demo-2026-09/Gitium_Demo.mp4)
+
+**[▶ Watch the demo](https://github.com/root-Manas/gitium/releases/download/demo-2026-09/Gitium_Demo.mp4)**
 
 ## Start with a good find
 
