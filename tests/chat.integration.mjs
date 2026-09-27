@@ -54,6 +54,32 @@ try{
  assert.equal((await call('bob','/api/messages?scope=dm&target=id:11')).messages[0].body,'private to bob');
  assert.equal((await call('impostor','/api/messages?scope=dm&target=id:11')).messages.length,0);
  await call('alice','/api/messages?scope=repo&target=alice/project','GET',undefined,403);
+ if(process.env.GITIUM_PLAYWRIGHT_PATH){
+  const { createRequire }=await import('node:module');
+  const { chromium }=createRequire(import.meta.url)(process.env.GITIUM_PLAYWRIGHT_PATH);
+  const browser=await chromium.launch({executablePath:process.env.GITIUM_CHROME_PATH,headless:true});
+  try{
+   const context=await browser.newContext();
+   await context.addCookies([{name:'next-auth.session-token',value:cookies.alice.split('=')[1],url:base}]);
+   const page=await context.newPage();const errors=[];page.on('pageerror',e=>errors.push(e.message));
+   for(const width of [320,390,1440])for(const theme of ['light','dark']){
+    await page.setViewportSize({width,height:900});
+    await page.goto(base+'/spaces?room='+room);
+    await page.getByRole('heading',{name:'alice/project',exact:true}).waitFor();
+    await page.evaluate(theme=>document.documentElement.dataset.theme=theme,theme);
+    assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false,`${width} ${theme} chat overflow`);
+    await page.getByText('edited',{exact:true}).waitFor();
+    checks++;
+   }
+   await page.goto(base+'/spaces?dm=id%3A22');
+   await page.getByRole('heading',{name:'bob',exact:true}).waitFor();
+   await page.getByText('private to bob',{exact:true}).waitFor();
+   await page.getByRole('button',{name:'Edit',exact:true}).click();
+   await page.getByRole('button',{name:'Save edit',exact:true}).waitFor();
+   await page.getByRole('button',{name:'Cancel',exact:true}).click();
+   assert.deepEqual(errors,[]);checks++;
+  }finally{await browser.close();}
+ }
  const results=await Promise.all(Array.from({length:14},()=>fetch(base+'/api/messages',{method:'POST',headers:{Cookie:cookies.alice,Origin:base,'Content-Type':'application/json'},body:JSON.stringify({scope:'room',target:room,body:'quota'})})));
  assert.equal(results.filter(r=>r.status===201).length,9);checks++;
  console.log(`PASS: ${checks} chat authorization, revocation, identity, CSRF and concurrent quota checks.`);

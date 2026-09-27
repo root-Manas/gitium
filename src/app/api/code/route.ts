@@ -10,9 +10,9 @@ type Repo = { full_name: string; description: string | null; default_branch: str
 
 export async function GET(request: NextRequest) {
   const raw = new URL(request.url).searchParams.get('repo')?.trim() || '';
-  const value = raw.replace(/^https?:\/\/github\.com\//i, '').replace(/\.git$/i, '').replace(/\/$/, '');
+  const value = raw.replace(/^https?:\/\/github\.com\//i, '').replace(/\/$/, '').replace(/\.git$/i, '');
   const [owner, name, extra] = value.split('/');
-  if (extra || !validLogin(owner || '') || !/^[\w.-]{1,100}$/.test(name || '') || name === '.' || name === '..') return json({ error: 'Enter owner/repository.' }, 400);
+  if (extra || !validLogin(owner || '') || !/^[\w.-]{1,100}$/.test(name || '') || name === '.' || name === '..') return json({ error: 'Enter a public repository such as root-Manas/gitium, or paste https://github.com/root-Manas/gitium. A username alone is not a repository.' }, 400);
   try {
     const jwt = await getToken({ req: request, secret: process.env.NEXTAUTH_SECRET });
     const access = typeof jwt?.githubAccessToken === 'string' ? jwt.githubAccessToken : undefined;
