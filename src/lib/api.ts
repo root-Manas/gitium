@@ -5,10 +5,10 @@ import { dbConfigured } from './d1';
 
 export const json = (data: unknown, status = 200) => NextResponse.json(data, { status, headers: { 'Cache-Control': 'no-store' } });
 
-export async function checkWrite(request: NextRequest) {
+export async function checkWrite(request: NextRequest, maxBytes = 4000) {
   if (request.headers.get('origin') !== new URL(request.url).origin) return json({ error: 'Invalid request origin.' }, 403);
   if (!request.headers.get('content-type')?.startsWith('application/json')) return json({ error: 'Expected JSON.' }, 415);
-  if (Number(request.headers.get('content-length') || 0) > 4000) return json({ error: 'Request is too large.' }, 413);
+  if (Number(request.headers.get('content-length') || 0) > maxBytes) return json({ error: 'Request is too large.' }, 413);
   const reader = request.clone().body?.getReader();
   if (reader) {
     let size = 0;
@@ -17,7 +17,7 @@ export async function checkWrite(request: NextRequest) {
         const chunk = await reader.read();
         if (chunk.done) break;
         size += chunk.value.byteLength;
-        if (size > 4000) {
+        if (size > maxBytes) {
           void reader.cancel();
           return json({ error: 'Request is too large.' }, 413);
         }

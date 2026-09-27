@@ -45,8 +45,10 @@ export async function POST(request: NextRequest) {
     if (!space) return json({ error: 'This conversation is private or the recipient has not joined Gitium.' }, 403);
     if ('consent' in space && space.consent?.status !== 'accepted') return json({ error: 'This chat requires an accepted request.' }, 403);
     if (!body) return json({ error: 'Write up to 500 characters.' }, 400);
+    const encrypted = process.env.GITIUM_E2EE_ENABLED === 'local-candidate' ? await queryD1('SELECT id FROM e2ee_rooms WHERE scope=? AND target=?', [space.scope, space.target]) : [];
+    if (encrypted.length) return json({ error: 'Encryption is enabled for this conversation. Open encrypted chat to send.' }, 409);
     const id = randomUUID();
-    const result = await runD1("INSERT INTO messages(id,scope,target,author_id,author_login,body) SELECT ?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM messages WHERE author_id=? AND created_at>datetime('now','-1 minute'))<10 AND ((?8='dm_v2' AND EXISTS(SELECT 1 FROM dm_allowed WHERE pair=?9)) OR (?8='room' AND EXISTS(SELECT 1 FROM room_members WHERE room_id=?9 AND user_id=?10)))", [id, space.scope, space.target, user.id, user.githubLogin, body, user.id, space.scope, space.target, user.id]);
+    const result = await runD1(`INSERT INTO messages(id,scope,target,author_id,author_login,body) SELECT ?,?,?,?,?,? WHERE (SELECT COUNT(*) FROM messages WHERE author_id=? AND created_at>datetime('now','-1 minute'))<10 AND ((?8='dm_v2' AND EXISTS(SELECT 1 FROM dm_allowed WHERE pair=?9)) OR (?8='room' AND EXISTS(SELECT 1 FROM room_members WHERE room_id=?9 AND user_id=?10))) ${process.env.GITIUM_E2EE_ENABLED === 'local-candidate' ? 'AND NOT EXISTS(SELECT 1 FROM e2ee_rooms WHERE scope=?8 AND target=?9)' : ''}`, [id, space.scope, space.target, user.id, user.githubLogin, body, user.id, space.scope, space.target, user.id]);
     if (!result.changes) return json({ error: 'Message not sent. Check room access or wait a minute before trying again.' }, 429);
     return json({ id }, 201);
   } catch (error) { return apiError(error); }

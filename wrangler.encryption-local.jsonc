@@ -1,0 +1,7 @@
+{
+  "name": "gitium-encryption-local",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-09-26",
+  "workers_dev": false,
+  "d1_databases": [{ "binding": "DB", "database_name": "gitium-encryption-local", "database_id": "00000000-0000-4000-8000-000000000000" }]
+}
