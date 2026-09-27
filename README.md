@@ -4,11 +4,9 @@
 
 A place to discover open source, meet the people behind it, and find work you want to contribute to.
 
-**[Open Gitium →](https://gitium.vercel.app)** · [Made by Manas Raj](https://manasraj.vercel.app)
+**[Open Gitium →](https://gitium.vercel.app)** · [Made by root-Manas](https://manasraj.vercel.app)
 
-[![Watch the Gitium demo](docs/preview.png)](https://github.com/root-Manas/gitium/releases/download/demo-2026-09/Gitium_Demo.mp4)
-
-**[▶ Watch the demo](https://github.com/root-Manas/gitium/releases/download/demo-2026-09/Gitium_Demo.mp4)**
+https://github.com/user-attachments/assets/368f7e31-30a0-4ec0-bfde-8f926711a010
 
 ## Start with a good find
 
@@ -47,4 +45,4 @@ A brief interactive introduction, typewriter lettering, light and dark themes, a
 
 Essentials includes community descriptions from [Awesome Selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted), alongside Gitium starter picks. [Attribution and license](public/catalog/ATTRIBUTION.md).
 
-Gitium is an independent project by [Manas Raj](https://manasraj.vercel.app), not affiliated with GitHub.
+Gitium is an independent project by [root-Manas](https://manasraj.vercel.app), not affiliated with GitHub.
