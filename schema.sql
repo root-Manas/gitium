@@ -101,3 +101,33 @@ CREATE TABLE IF NOT EXISTS account_runs (
   PRIMARY KEY(day, login)
 );
 CREATE INDEX IF NOT EXISTS idx_account_runs_day ON account_runs(day, value_usd DESC);
+
+CREATE TABLE IF NOT EXISTS dm_requests (
+  pair TEXT PRIMARY KEY,
+  requester_id TEXT NOT NULL,
+  recipient_id TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending' CHECK(status IN ('pending','accepted','declined','cancelled')),
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+  CHECK(requester_id <> recipient_id)
+);
+CREATE INDEX IF NOT EXISTS idx_dm_requester ON dm_requests(requester_id, created_at);
+CREATE INDEX IF NOT EXISTS idx_dm_recipient ON dm_requests(recipient_id, status);
+CREATE TABLE IF NOT EXISTS chat_blocks (
+  blocker_id TEXT NOT NULL,
+  blocked_id TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY(blocker_id, blocked_id),
+  CHECK(blocker_id <> blocked_id)
+);
+CREATE VIEW IF NOT EXISTS dm_allowed AS
+SELECT pair FROM dm_requests d WHERE status='accepted' AND NOT EXISTS(
+  SELECT 1 FROM chat_blocks b WHERE (b.blocker_id=d.requester_id AND b.blocked_id=d.recipient_id)
+  OR (b.blocker_id=d.recipient_id AND b.blocked_id=d.requester_id)
+);
+
+CREATE TABLE IF NOT EXISTS room_declines (
+  room_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  PRIMARY KEY(room_id, user_id)
+);

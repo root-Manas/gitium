@@ -25,7 +25,7 @@ test('validates GitHub logins and keeps the D1 schema to Gitium-owned data', () 
   assert.equal(validLogin('root-Manas'), true);
   assert.equal(validLogin('../admin'), false);
   const schema = fs.readFileSync(new URL('../schema.sql', import.meta.url), 'utf8');
-  assert.deepEqual([...schema.matchAll(/CREATE TABLE IF NOT EXISTS (\w+)/g)].map(match => match[1]), ['users', 'follows', 'posts', 'messages', 'rooms', 'room_members', 'room_invites', 'room_invitations', 'code_run_views', 'code_run_totals', 'account_runs']);
+  assert.deepEqual([...schema.matchAll(/CREATE TABLE IF NOT EXISTS (\w+)/g)].map(match => match[1]), ['users', 'follows', 'posts', 'messages', 'rooms', 'room_members', 'room_invites', 'room_invitations', 'code_run_views', 'code_run_totals', 'account_runs', 'dm_requests', 'chat_blocks', 'room_declines']);
 });
 
 test('recommends overlap from followed people and excludes projects already starred by the user', () => {

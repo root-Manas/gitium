@@ -3,20 +3,20 @@ import { SessionProvider } from '@/components/SessionProvider';
 import './globals.css';
 
 const site = 'https://gitium.vercel.app';
-const description = 'Discover GitHub repositories through people you follow. Explore commit graphs, compare playful account scores, import your stars, find issues to contribute to, and talk in private rooms.';
+const description = 'Find top GitHub projects and organizations by language and topic. Browse essential open source tools, explore code graphs, and find issues to contribute to.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(site),
   applicationName: 'Gitium',
-  title: { default: 'Gitium — Find the work worth following', template: '%s · Gitium' },
+  title: { default: 'Gitium — Find useful GitHub projects', template: '%s · Gitium' },
   description,
-  keywords: ['GitHub project discovery', 'open source discovery', 'GitHub code graph', 'GitHub stars', 'developer communities', 'repository chat', 'GitHub account score'],
+  keywords: ['GitHub project discovery', 'top GitHub repositories', 'GitHub organizations', 'open source tools', 'good first issues', 'open source discovery', 'GitHub code graph', 'GitHub stars', 'developer communities', 'repository chat', 'GitHub account score'],
   authors: [{ name: 'Manas Raj', url: 'https://manasraj.vercel.app' }],
   creator: 'Manas Raj',
   category: 'developer tools',
   alternates: { canonical: site },
-  openGraph: { title: 'Gitium — Find the work worth following', description, url: site, siteName: 'Gitium', type: 'website', locale: 'en_US', images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Gitium — discover the work worth following' }] },
-  twitter: { card: 'summary_large_image', title: 'Gitium — Find the work worth following', description, images: ['/opengraph-image'] }
+  openGraph: { title: 'Gitium — Find useful GitHub projects', description, url: site, siteName: 'Gitium', type: 'website', locale: 'en_US', images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Gitium — find useful GitHub projects' }] },
+  twitter: { card: 'summary_large_image', title: 'Gitium — Find useful GitHub projects', description, images: ['/opengraph-image'] }
 };
 
 const structuredData = {

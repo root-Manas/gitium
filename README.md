@@ -2,13 +2,17 @@
 
 ### Find your next GitHub project.
 
-Find repositories through people you follow, explore their commit history, and talk with other developers.
+Find useful GitHub projects and the organizations behind them. Browse by language and topic, explore their commit history, and find something to contribute to.
 
 [Explore Gitium](https://gitium.vercel.app) · [Meet the maker](https://manasraj.vercel.app)
 
 ![Gitium project discovery](docs/preview.png)
 
 ## Find projects through people
+
+Start with **top projects** ranked by stars, forks or recent updates. Search by language, topic, owner and creation date, or browse organizations by followers and repository count. Every filtered page has a shareable URL.
+
+The **Essentials** collection explains what each selected tool is useful for and what to consider before using it. It is a curated starting point, with links to explore the code and find open issues.
 
 Your GitHub follows are your starting point. Gitium brings together the repositories they recently starred and shows exactly who found each one. When several people in your circle pick the same project, you can see the overlap. Follow or unfollow someone in Gitium and the change appears on GitHub too.
 
@@ -23,9 +27,11 @@ Browse open GitHub issues by language, repository, recent activity, and the proj
 ## Give work a place to talk
 
 - **Private rooms:** invite people into repository and organization chats.
-- **Direct chat:** message another Gitium user privately.
+- **Direct chat:** send a request. The recipient accepts or declines before messages unlock. Cancel pending requests or block someone at any time.
 
-Room access is limited to invited members; direct chats are limited to their two participants. Chats are **not yet end-to-end encrypted**; Gitium's server processes message text.
+Room invitations have Join and Decline controls. Direct chats require mutual consent, and a declined request cannot be sent again by its original sender. Blocking stops DMs and new invitations between the two accounts. Existing shared rooms keep their membership rules; leave a room to stop participating there. Repository and organization rooms are created by Gitium users and are not official GitHub-managed spaces.
+
+Chats are **not yet end-to-end encrypted**; Gitium's server processes message text.
 
 ## Bring your stars along
 

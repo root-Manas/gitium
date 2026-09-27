@@ -15,6 +15,7 @@ const bridge=createServer(async(req,res)=>{
  try {
   let body='';for await(const chunk of req)body+=chunk;
   const {sql,params}=JSON.parse(body);const stmt=db.prepare(sql);
+  assert.ok(sql.length<=1200, 'Worker SQL size limit');assert.ok(params.length<=10, 'Worker parameter limit');
   const result=/^SELECT/i.test(sql)?{results:stmt.all(...params),meta:{changes:0}}:{results:[],meta:{changes:Number(stmt.run(...params).changes)}};
   res.setHeader('Content-Type','application/json');res.end(JSON.stringify({success:true,result:[{success:true,...result}]}));
  }catch(e){res.writeHead(500,{'Content-Type':'application/json'}).end(JSON.stringify({success:false,errors:[{message:e.message}]}));}
@@ -50,7 +51,24 @@ try{
  for(const method of ['PATCH','DELETE'])await call('bob','/api/messages',method,{id:message,body:'after removal'},403);
  await call('bob',`/api/messages?scope=room&target=${room}`,'GET',undefined,403);
  await call('bob','/api/messages','POST',{scope:'room',target:room,body:'after removal'},403);
- await call('alice','/api/messages','POST',{scope:'dm',target:'id:22',body:'private to bob'},201);
+ await call('alice','/api/rooms','POST',{action:'invite',roomId:room,login:'bob'});
+ await call('bob','/api/rooms','POST',{action:'decline',roomId:room});
+ await call('alice','/api/rooms','POST',{action:'invite',roomId:room,login:'bob'},409);
+ await call('bob','/api/rooms','POST',{action:'accept',roomId:room},403);
+ await call(null,'/api/chat-requests','GET',undefined,401);
+ await call('alice','/api/messages','POST',{scope:'dm',target:'id:22',body:'before consent'},403);
+ await call('alice','/api/chat-requests','POST',{action:'request',target:'id:22'},403,'https://evil.example');
+ await call('alice','/api/chat-requests','POST',{action:'request',target:'id:22'});
+ assert.equal((await call('bob','/api/chat-requests')).requests[0].recipient_id,'22');
+ await call('alice','/api/chat-requests','POST',{action:'accept',target:'id:22'},409);
+ await call('mallory','/api/chat-requests','POST',{action:'accept',target:'id:11'},409);
+ await call('alice','/api/messages','POST',{scope:'dm',target:'id:22',body:'pending consent'},403);
+ await call('bob','/api/chat-requests','POST',{action:'decline',target:'id:11'});
+ await call('alice','/api/chat-requests','POST',{action:'request',target:'id:22'},409);
+ await call('alice','/api/chat-requests','POST',{action:'reopen',target:'id:22'},409);
+ await call('bob','/api/chat-requests','POST',{action:'reopen',target:'id:11'});
+ await call('alice','/api/chat-requests','POST',{action:'accept',target:'id:22'});
+ const {id:dm}=await call('alice','/api/messages','POST',{scope:'dm',target:'id:22',body:'private to bob'},201);
  assert.equal((await call('bob','/api/messages?scope=dm&target=id:11')).messages[0].body,'private to bob');
  assert.equal((await call('impostor','/api/messages?scope=dm&target=id:11')).messages.length,0);
  await call('alice','/api/messages?scope=repo&target=alice/project','GET',undefined,403);
@@ -77,9 +95,28 @@ try{
    await page.getByRole('button',{name:'Edit',exact:true}).click();
    await page.getByRole('button',{name:'Save edit',exact:true}).waitFor();
    await page.getByRole('button',{name:'Cancel',exact:true}).click();
+   await call('mallory','/api/chat-requests','POST',{action:'request',target:'id:11'});
+   await page.goto(base+'/spaces?dm=id%3A33');
+   await page.getByRole('button',{name:'Accept request',exact:true}).waitFor();
+   assert.equal(await page.getByRole('textbox',{name:'Message',exact:true}).isDisabled(),true);
+   await page.getByRole('button',{name:'Accept request',exact:true}).click();
+   await page.getByText('Request accepted.',{exact:false}).waitFor();
+   assert.equal(await page.getByRole('textbox',{name:'Message',exact:true}).isEnabled(),true);
+   await page.getByRole('button',{name:'Block person',exact:true}).click();
+   await page.getByText('You blocked this person.',{exact:true}).waitFor();
+   assert.equal(await page.getByRole('textbox',{name:'Message',exact:true}).isDisabled(),true);checks+=3;
    assert.deepEqual(errors,[]);checks++;
   }finally{await browser.close();}
  }
+ await call('bob','/api/chat-requests','POST',{action:'block',target:'id:11'});
+ assert.equal((await call('alice','/api/messages?scope=dm&target=id:22')).messages.length,0);
+ await call('alice','/api/messages','POST',{scope:'dm',target:'id:22',body:'blocked'},403);
+ for(const method of ['PATCH','DELETE'])await call('alice','/api/messages',method,{id:dm,body:'blocked edit'},403);
+ await call('alice','/api/rooms','POST',{action:'invite',roomId:room,login:'bob'},403);
+ await call('bob','/api/chat-requests','POST',{action:'unblock',target:'id:11'});
+ await call('alice','/api/messages','POST',{scope:'dm',target:'id:22',body:'no automatic consent'},403);
+ await call('alice','/api/chat-requests','POST',{action:'reopen',target:'id:22'});
+ await call('bob','/api/chat-requests','POST',{action:'accept',target:'id:11'});
  const results=await Promise.all(Array.from({length:14},()=>fetch(base+'/api/messages',{method:'POST',headers:{Cookie:cookies.alice,Origin:base,'Content-Type':'application/json'},body:JSON.stringify({scope:'room',target:room,body:'quota'})})));
  assert.equal(results.filter(r=>r.status===201).length,9);checks++;
  console.log(`PASS: ${checks} chat authorization, revocation, identity, CSRF and concurrent quota checks.`);

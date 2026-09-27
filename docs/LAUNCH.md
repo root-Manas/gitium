@@ -1,58 +1,78 @@
-# Gitium launch kit
+# Gitium launch plan
 
-Live app: https://gitium.vercel.app
+Live app: https://gitium.vercel.app/explore
 Source: https://github.com/root-Manas/gitium
 Maker: https://manasraj.vercel.app
+
+## What to lead with
+
+**Find useful GitHub projects and somewhere to contribute.** Show a real search, a useful result, and an issue someone could work on. Keep the account dollar score as an optional curiosity; it should not distract from the reason to return.
+
+## A reason to share
+
+- Each filtered Explore URL preserves the search. Share a specific list such as [self-hosted projects](https://gitium.vercel.app/explore?topic=self-hosted) or [Rust projects](https://gitium.vercel.app/explore?language=Rust), with one clear reason to open it.
+- Publish a weekly selection of three projects you actually tried: the problem, what worked, and one limitation. Credit the maintainers. Link to the matching Gitium search and the original projects.
+- Invite suggestions for the Essentials collection through the repository's issues. Review them before adding them. Avoid paid placements disguised as recommendations.
+- Demonstrate the complete path: find a project, inspect its recent commits, then open an issue. A 30-second recording of that journey is more useful than a feature montage.
+
+## X draft
+
+I built Gitium to make it easier to find useful things on GitHub.
+
+Browse projects by language and topic, find the organizations behind them, or pick an open issue to contribute to.
+
+I also added an Essentials collection with a short explanation of what each tool does and its tradeoffs.
+
+Try it: https://gitium.vercel.app/explore
+
+What project belongs in the collection?
 
 ## Product Hunt draft
 
 **Name:** Gitium
 
-**Tagline:** Discover GitHub projects through people you follow
+**Tagline:** Find useful GitHub projects and somewhere to contribute
 
-**Description:** Find repositories your GitHub network has starred, import your own stars, explore commit graphs, and compare account scores with a visible formula. Find open issues to contribute to or invite people into private chats. Free to use, with light and dark themes.
+**Description:** Browse top GitHub projects and organizations, filter by language and topic, and explore a curated collection of useful tools. Inspect commit graphs, import your stars, and find open issues to contribute to. Free to use, with light and dark themes.
 
 **Maker comment:**
 
-I built Gitium because my next useful GitHub repo usually comes from someone I follow. I wanted a quick way to see what those people were finding, especially when several of them starred the same project.
+I wanted a quicker way to find projects I'd actually use. Gitium puts project search, organizations, a small Essentials collection and contribution issues in one place.
 
-You can bring your stars over, inspect a repo's recent commits, or try the account score. The dollar figure is a game: inactive projects and forks can bring it down, and the formula is visible. You can also find open issues to contribute to and start invitation-only chats.
+Rankings tell you what they measure. Stars are lifetime totals, not a claim that a project is the best. The curated tools include a reason to try them and a limitation to keep in mind.
 
-I'd like to know which project you found useful, and what you couldn't find. Chat has access controls, but end-to-end encryption is still being developed locally.
+You can also explore recent commits, bring in your GitHub stars and chat with other Gitium users. DMs require an accepted request; repository and organization rooms require an invitation. Chat is not yet end-to-end encrypted.
 
-## X draft
+I'd like to hear what you found useful, what search didn't work, and which project I should try next.
 
-I made Gitium to find repos through people I follow on GitHub.
+## Launch sequence
 
-See their stars overlap, explore a repo's commits, import your own stars, or try the account score (yes, neglected repos lose points).
+1. Test the signed-out search journey and a complete signed-in journey on production. Check OAuth, stars, graphs, account scores, DM acceptance and room invitations. Review X and Product Hunt link previews in their actual composers.
+2. Collect feedback from five people who already browse GitHub. Ask them to find a tool for a real problem. Fix places where they get stuck before setting a launch date.
+3. Prepare three screenshots: filtered projects, Essentials and a populated code graph. Avoid screenshots of private conversations. Record the short search-to-contribution demo.
+4. Use the maker's personal Product Hunt account, satisfy its eligibility requirements, and check whether a Gitium listing already exists before creating one. Include the live app and source link.
+5. Publish one clear X demo and the Product Hunt listing. Share with people who asked to hear about it and communities whose posting rules allow it. Ask for feedback, not coordinated votes.
+6. Spend launch day answering questions and fixing broken journeys. Post one useful project example the next day; follow up with the improvement most often requested.
 
-Free to try: https://gitium.vercel.app
+## What to measure
 
-What repo should I explore next?
+- Searches that lead to a code graph or contribution page, not just page views.
+- Repeat visits over the next week.
+- Searches with no results or GitHub quota errors.
+- Suggestions that improve the Essentials collection.
 
-## Before posting
+These conversion events are a proposed next measurement step, not currently collected analytics. Existing code and account leaderboards count their own runs. Do not attach prizes or money to those rankings: coordinated accounts can distort them. No launch plan can guarantee virality.
 
-1. Use your personal Product Hunt maker account. Complete the account eligibility period if it is new. Add the live app and GitHub source link; claim an existing Gitium product page if one already exists.
-2. Upload the app logo, the link-preview image at `/opengraph-image`, and real screenshots of discovery, a populated graph, account score, and stars. Avoid screenshots with private messages or personal account data.
-3. Record a 30–45 second demo: find a recommended repo, explain who starred it, open its graph, then show the transparent score. Focus on the result rather than reading a feature list.
-4. Run one signed-in journey on the live app: OAuth, follows, stars, graph, score, invite, send, remove. Check the link preview on the actual draft composer.
-5. Publish the X post yourself from your account; add one follow-up showing a specific useful discovery. Share the Product Hunt launch with people who asked to hear about it. Ask for feedback; do not buy votes or spam communities.
+## Free usage and caching
 
-## Measure the first week
+Explore reuses public GitHub search responses for 15 minutes. Essentials is bundled editorial content and needs no GitHub or database request. Graphs and leaderboards advertise five-minute shared caches. Personal stars, chats and authenticated feeds are never shared-cached. Chat refreshes every 30 seconds while visible; requests and room sizes are bounded.
 
-- Day 1: respond to questions and fix broken journeys. Track completed explorations and scores, not just visits.
-- Days 2–3: share an interesting repo discovered through Gitium, credit its maintainer, and explain why it was useful.
-- Days 4–7: ship the most common usability fix and post the before/after. Compare returning explorers with first-day traffic.
-- Treat leaderboards as community activity, not a growth guarantee. Rankings are vulnerable to coordinated accounts; do not attach rewards or money to them.
+Anonymous GitHub search has a separate small rate allowance. A cache helps repeated searches, but many distinct queries can still exhaust it. Show a retry message; do not silently invent results. Inspect quota errors during launch before expanding traffic.
 
-## Free usage and limits
+Free tiers have finite capacity. D1 can stop at daily limits; Vercel Hobby has usage and personal/non-commercial restrictions. The application does not automatically buy extra capacity. Watch the provider dashboards and reduce polling or disable writes if necessary. Zero cost does not mean unlimited concurrent users.
 
-Public code responses and leaderboards advertise five-minute shared caches with stale responses permitted for a further ten minutes. GitHub's anonymous public fetches use server caching. Personal stars, chats and authenticated feeds are never shared-cached. Chat polls once every thirty seconds only while visible. Writes, room sizes and imports are bounded.
+## Publication status
 
-Free tiers have finite capacity. D1 may stop queries at daily free limits; Vercel Hobby also has usage and personal/non-commercial restrictions. No automatic paid upgrade is part of this app. Watch the provider dashboards during launch and reduce polling or temporarily disable writes if quotas approach their limits. More concurrent users cannot be guaranteed at zero cost.
+This is prepared copy. No X announcement or Product Hunt listing has been published by this work. The maker still needs to choose a launch date and publish from their account.
 
-## Status
-
-Draft copy and assets are prepared in the repository. No Product Hunt product has been registered and no X or Product Hunt announcement has been posted by this work. Those actions require the maker's signed-in account and a chosen launch date.
-
-Sources: [Product Hunt launch guide](https://www.producthunt.com/launch), [posting a product](https://help.producthunt.com/en/articles/479557-how-to-post-a-product), [launch rules](https://www.producthunt.com/launch/how-product-hunt-works), [Vercel Hobby](https://vercel.com/docs/plans/hobby), [D1 free-tier enforcement](https://developers.cloudflare.com/changelog/post/2026-09-01-d1-free-tier-limit-enforcement/).
+Sources: [GitHub search limits](https://docs.github.com/en/rest/search/search), [Product Hunt launch guide](https://www.producthunt.com/launch), [posting a product](https://help.producthunt.com/en/articles/479557-how-to-post-a-product), [launch rules](https://www.producthunt.com/launch/how-product-hunt-works), [Vercel Hobby](https://vercel.com/docs/plans/hobby), [D1 free-tier enforcement](https://developers.cloudflare.com/changelog/post/2026-09-01-d1-free-tier-limit-enforcement/).

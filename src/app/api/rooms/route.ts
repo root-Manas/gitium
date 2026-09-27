@@ -7,7 +7,7 @@ import { isRoomMember, validRoomId } from '@/lib/chat';
 import { parseSpace } from '@/lib/spaces';
 
 type Room = { id: string; scope: string; target: string; owner_id: string; owner_login: string; created_at: string; latest?: string | null };
-type Invite = { room_id: string; scope: string; target: string; owner_login: string; created_at: string };
+type Invite = { room_id: string; scope: string; target: string; owner_id: string; owner_login: string; created_at: string };
 
 export async function GET(request: NextRequest) {
   const user = await currentUser(); if (!user) return json({ error: 'Sign in with GitHub to open chats.' }, 401);
@@ -23,8 +23,8 @@ export async function GET(request: NextRequest) {
       return json({ room: room[0], members, invites });
     }
     const rooms = await queryD1<Room>("SELECT r.id,r.scope,r.target,r.owner_id,r.owner_login,r.created_at,(SELECT MAX(created_at) FROM messages WHERE scope='room' AND target=r.id) AS latest FROM rooms r JOIN room_members m ON m.room_id=r.id WHERE m.user_id=? ORDER BY COALESCE(latest,r.created_at) DESC LIMIT 50", [user.id]);
-    const invites = await queryD1<Invite>('SELECT i.room_id,r.scope,r.target,r.owner_login,i.created_at FROM room_invitations i JOIN rooms r ON r.id=i.room_id WHERE i.user_id=? ORDER BY i.created_at DESC LIMIT 50', [user.id]);
-    const dms = await queryD1<{ id: string; login: string; latest: string }>("SELECT u.github_id AS id,u.github_login AS login,MAX(m.created_at) AS latest FROM messages m JOIN users u ON (m.target=?||':'||u.github_id OR m.target=u.github_id||':'||?) WHERE m.scope='dm_v2' GROUP BY u.github_id,u.github_login ORDER BY latest DESC LIMIT 50", [user.id, user.id]);
+    const invites = await queryD1<Invite>('SELECT i.room_id,r.scope,r.target,r.owner_id,r.owner_login,i.created_at FROM room_invitations i JOIN rooms r ON r.id=i.room_id WHERE i.user_id=?1 AND NOT EXISTS(SELECT 1 FROM chat_blocks b WHERE (b.blocker_id=?1 AND b.blocked_id=r.owner_id) OR (b.blocker_id=r.owner_id AND b.blocked_id=?1)) AND NOT EXISTS(SELECT 1 FROM room_declines d WHERE d.room_id=i.room_id AND d.user_id=?1) ORDER BY i.created_at DESC LIMIT 50', [user.id]);
+    const dms = await queryD1<{ id: string; login: string; latest: string }>("SELECT u.github_id AS id,u.github_login AS login,MAX(m.created_at) AS latest FROM messages m JOIN users u ON (m.target=?||':'||u.github_id OR m.target=u.github_id||':'||?) WHERE m.scope='dm_v2' AND EXISTS(SELECT 1 FROM dm_allowed WHERE pair=m.target) GROUP BY u.github_id,u.github_login ORDER BY latest DESC LIMIT 50", [user.id, user.id]);
     return json({ rooms, invites, dms });
   } catch (error) { return apiError(error); }
 }
@@ -62,17 +62,20 @@ export async function POST(request: NextRequest) {
       if (Number(count[0]?.total || 0) + Number(members[0]?.total || 0) >= 25) return json({ error: 'This room has reached its 25-person limit.' }, 429);
       const peer = await getUser(login).catch(() => null);
       if (!peer?.id) return json({ error: 'GitHub user not found.' }, 404);
-      const invited = await runD1('INSERT OR IGNORE INTO room_invitations(room_id,user_id,login,invited_by) SELECT ?,?,?,? WHERE (SELECT COUNT(*) FROM room_invitations WHERE room_id=?)+(SELECT COUNT(*) FROM room_members WHERE room_id=?)<25 AND NOT EXISTS(SELECT 1 FROM room_members WHERE room_id=? AND user_id=?)', [roomId, String(peer.id), login, user.id, roomId, roomId, roomId, String(peer.id)]);
+      const blocked = await queryD1('SELECT 1 FROM chat_blocks WHERE (blocker_id=?1 AND blocked_id=?2) OR (blocker_id=?2 AND blocked_id=?1)', [user.id, String(peer.id)]);
+      if (blocked.length) return json({ error: 'Invitation unavailable.' }, 403);
+      const invited = await runD1('INSERT OR IGNORE INTO room_invitations(room_id,user_id,login,invited_by) SELECT ?,?,?,? WHERE (SELECT COUNT(*) FROM room_invitations WHERE room_id=?)+(SELECT COUNT(*) FROM room_members WHERE room_id=?)<25 AND NOT EXISTS(SELECT 1 FROM room_members WHERE room_id=? AND user_id=?) AND NOT EXISTS(SELECT 1 FROM room_declines WHERE room_id=?1 AND user_id=?2) AND NOT EXISTS(SELECT 1 FROM chat_blocks WHERE (blocker_id=?4 AND blocked_id=?2) OR (blocker_id=?2 AND blocked_id=?4))', [roomId, String(peer.id), login, user.id, roomId, roomId, roomId, String(peer.id)]);
       if (!invited.changes) return json({ error: 'Already invited, already a member, or room is full.' }, 409);
       return json({ invited: login });
     }
     if (action === 'accept') {
-      const joined = await runD1('INSERT OR IGNORE INTO room_members(room_id,user_id,login) SELECT ?,?,? WHERE EXISTS(SELECT 1 FROM room_invitations WHERE room_id=? AND user_id=?) AND (SELECT COUNT(*) FROM room_members WHERE room_id=?)<25', [roomId, user.id, user.githubLogin.toLowerCase(), roomId, user.id, roomId]);
+      const joined = await runD1('INSERT OR IGNORE INTO room_members(room_id,user_id,login) SELECT ?,?,? WHERE EXISTS(SELECT 1 FROM room_invitations WHERE room_id=? AND user_id=?) AND (SELECT COUNT(*) FROM room_members WHERE room_id=?)<25 AND NOT EXISTS(SELECT 1 FROM room_declines WHERE room_id=?1 AND user_id=?2) AND NOT EXISTS(SELECT 1 FROM chat_blocks b JOIN rooms r ON r.id=?1 WHERE (b.blocker_id=?2 AND b.blocked_id=r.owner_id) OR (b.blocker_id=r.owner_id AND b.blocked_id=?2))', [roomId, user.id, user.githubLogin.toLowerCase(), roomId, user.id, roomId]);
       if (!joined.changes) return json({ error: 'Invite unavailable, already joined, or room is full.' }, 403);
       await queryD1('DELETE FROM room_invitations WHERE room_id=? AND user_id=?', [roomId, user.id]);
       return json({ joined: roomId });
     }
     if (action === 'decline') {
+      await queryD1('INSERT OR IGNORE INTO room_declines(room_id,user_id) SELECT room_id,user_id FROM room_invitations WHERE room_id=? AND user_id=?', [roomId, user.id]);
       await queryD1('DELETE FROM room_invitations WHERE room_id=? AND user_id=?', [roomId, user.id]);
       return json({ declined: roomId });
     }
