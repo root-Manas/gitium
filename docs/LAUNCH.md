@@ -10,13 +10,13 @@ Maker: https://manasraj.vercel.app
 
 **Tagline:** Discover GitHub projects through people you follow
 
-**Description:** Find repositories your GitHub network has starred, import your own stars, explore commit graphs, and compare account scores with a visible formula. Publish posts or invite people into private chats. Free to use, with light and dark themes.
+**Description:** Find repositories your GitHub network has starred, import your own stars, explore commit graphs, and compare account scores with a visible formula. Find open issues to contribute to or invite people into private chats. Free to use, with light and dark themes.
 
 **Maker comment:**
 
 I built Gitium because my next useful GitHub repo usually comes from someone I follow. I wanted a quick way to see what those people were finding, especially when several of them starred the same project.
 
-You can bring your stars over, inspect a repo's recent commits, or try the account score. The dollar figure is a game: inactive projects and forks can bring it down, and the formula is visible. There are also public posts and invitation-only chats.
+You can bring your stars over, inspect a repo's recent commits, or try the account score. The dollar figure is a game: inactive projects and forks can bring it down, and the formula is visible. You can also find open issues to contribute to and start invitation-only chats.
 
 I'd like to know which project you found useful, and what you couldn't find. Chat has access controls, but end-to-end encryption is still being developed locally.
 

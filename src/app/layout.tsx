@@ -3,7 +3,7 @@ import { SessionProvider } from '@/components/SessionProvider';
 import './globals.css';
 
 const site = 'https://gitium.vercel.app';
-const description = 'Discover GitHub repositories through people you follow. Explore commit graphs, compare playful account scores, import your stars, and talk in private rooms.';
+const description = 'Discover GitHub repositories through people you follow. Explore commit graphs, compare playful account scores, import your stars, find issues to contribute to, and talk in private rooms.';
 
 export const metadata: Metadata = {
   metadataBase: new URL(site),

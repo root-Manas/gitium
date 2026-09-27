@@ -128,7 +128,7 @@ export function ChatView({ initialRoom, initialDm }: { initialRoom: string; init
   function onKey(event: KeyboardEvent<HTMLTextAreaElement>) { if (event.key === 'Enter' && !event.shiftKey && !event.nativeEvent.isComposing) { event.preventDefault(); event.currentTarget.form?.requestSubmit(); } }
 
   if (status === 'loading') return <div className="wide-page"><p className="space-empty">Opening chats…</p></div>;
-  if (!session) return <div className="wide-page chat-gate"><MessageCircle size={40}/><h1>Your private chats</h1><p>Sign in with GitHub to see your rooms, invitations, and direct messages.</p><button onClick={() => signIn('github')}>Sign in with GitHub</button><p><Link href="/posts">Public posts are here →</Link></p></div>;
+  if (!session) return <div className="wide-page chat-gate"><MessageCircle size={40}/><h1>Your private chats</h1><p>Sign in with GitHub to see your rooms, invitations, and direct messages.</p><button onClick={() => signIn('github')}>Sign in with GitHub</button><p><Link href="/contribute">Find an issue to work on →</Link></p></div>;
 
   return <div className="wide-page chat-page"><div className="page-heading"><span className="eyebrow">PRIVATE CHATS</span><h1>Your conversations<span>.</span></h1><p>Direct messages are between two people. Repository and organization rooms are invitation only. Messages are not yet end-to-end encrypted.</p></div>
     {error && <p className="status-banner" role="alert">{error}</p>}

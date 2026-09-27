@@ -16,13 +16,16 @@ Your GitHub follows are your starting point. Gitium brings together the reposito
 
 Open any GitHub profile to see a year of contributions, its recent repository languages, and the most starred projects in the sample. Open a public repository to graph its recent commit cadence, contributors, and changes. Gitium also gives every account an **illustrative dollar estimate** using a visible formula based on contributions, followers, stars, and repositories. It is a way to compare public activity, not a sale price or financial valuation. A local history in your browser lets you see how an estimate changes over time.
 
+## Find an issue
+
+Browse open GitHub issues by language, repository, recent activity, and the project’s **good first issue** or **help wanted** labels. Filter for unassigned work, read the details, and go directly to the original issue. Check with the maintainers before starting.
+
 ## Give work a place to talk
 
-- **Posts:** publish on your own profile or add a public post to a repository or organization space.
 - **Private rooms:** invite people into repository and organization chats.
 - **Direct chat:** message another Gitium user privately.
 
-Posts are public and display the writer's GitHub username. Room access is limited to invited members; direct chats are limited to their two participants. Chats are **not yet end-to-end encrypted**; Gitium's server processes message text.
+Room access is limited to invited members; direct chats are limited to their two participants. Chats are **not yet end-to-end encrypted**; Gitium's server processes message text.
 
 ## Bring your stars along
 
@@ -38,7 +41,7 @@ Browse recent work from your GitHub network, save useful links in your browser, 
 
 ## Your account, your view
 
-Gitium reads public project and account information from GitHub when you use it. It stores your Gitium posts and conversations so other people can read and reply, while saved links and estimate history stay in your browser. Light and dark themes are built in.
+Gitium reads public project and account information from GitHub when you use it. It stores your Gitium conversations so participants can read and reply, while saved links and estimate history stay in your browser. Light and dark themes are built in.
 
 ---
 
