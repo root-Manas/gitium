@@ -18,11 +18,25 @@ try {
   page.on('pageerror', e=>errors.push(e.message));
   // Avoid third-party analytics delivery during isolated tests.
   await context.route('**/_vercel/insights/**', route=>route.fulfill({ status: 200, contentType: 'application/javascript', body: '' }));
+  await page.goto(base+'/search',{waitUntil:'domcontentloaded'});
+  const intro=page.getByRole('dialog',{name:'gitium_'});
+  await intro.waitFor();
+  await intro.getByRole('button',{name:'Code',exact:true}).click();
+  assert.equal(await intro.getByRole('button',{name:'Code',exact:true}).getAttribute('aria-pressed'),'true');
+  await page.keyboard.press('Escape');
+  await intro.waitFor({state:'hidden'});
+  assert.equal(await page.evaluate(()=>sessionStorage.getItem('gitium-intro-seen')),'1');
+  await page.locator('.explore-person').first().waitFor();
+  await page.reload();
+  await page.getByRole('textbox',{name:'Search Gitium',exact:true}).waitFor();
+  assert.equal(await page.locator('.first-visit').isVisible(),false,'intro does not repeat in the same tab');
+  assert.ok(await page.locator('.explore-person').count()>0,'People has profiles before a query');
   for (const width of [320, 390, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     for (const path of ['/explore?view=essentials','/code','/insights','/contribute','/saved','/search?q=alice','/spaces']) {
       await page.goto(base+path);
       await page.getByRole('textbox',{name:'Search Gitium',exact:true}).waitFor();
+      assert.equal(await page.locator('.first-visit').isVisible(),false,`${path} does not repeat intro`);
       assert.equal(await page.getByRole('search').count(),1,path+' one search');
       for (const theme of ['light','dark']) {
         await page.evaluate(t=>document.documentElement.dataset.theme=t,theme);

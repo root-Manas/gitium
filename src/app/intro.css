@@ -1,0 +1,14 @@
+.first-visit{display:none;position:fixed;inset:0;width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:24px;border:0;background:var(--bg);color:var(--ink);z-index:1000}
+html[data-intro="pending"] .first-visit{display:grid;place-items:center}
+.first-visit::backdrop{background:var(--bg)}
+.intro-inner{width:min(100%,480px)}
+.intro-brand{display:flex;align-items:center;gap:14px;margin-bottom:40px}.intro-brand svg{width:52px;height:52px}.intro-brand h1{font-size:44px;font-weight:400;margin:0;letter-spacing:-2px}.intro-brand h1 span{color:var(--accent);animation:intro-blink 1s steps(2,end) infinite}
+.intro-preview{display:flex;align-items:center;gap:38px;min-height:148px;padding:22px 24px;border-block:1px solid var(--line);margin-bottom:24px}
+.intro-orbit{position:relative;display:grid;place-items:center;flex:none;width:94px;height:94px;border:1px dashed var(--line);border-radius:50%;color:var(--accent)}
+.intro-orbit i{position:absolute;inset:0;animation:intro-orbit 5s linear infinite}.intro-orbit i::before{content:"";position:absolute;left:43px;top:-4px;width:7px;height:7px;border-radius:50%;background:var(--accent)}.intro-orbit i:nth-of-type(2){animation-delay:-1.7s}.intro-orbit i:nth-of-type(3){animation-delay:-3.4s}
+.intro-lines{display:grid;gap:12px;font-size:13px;color:var(--muted)}.intro-lines span{animation:intro-in .35s both}.intro-lines span:nth-child(2){color:var(--ink)}
+.intro-choices{display:flex;gap:8px;flex-wrap:wrap}.intro-choices button{display:flex;align-items:center;gap:7px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;background:transparent;color:var(--muted);font:inherit;font-size:12px}.intro-choices button[aria-pressed=true]{background:var(--paper);border-color:var(--accent);color:var(--ink)}
+.intro-footer{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-top:36px;font-size:11px;color:var(--muted)}.intro-footer button{display:flex;align-items:center;gap:10px;padding:12px 14px;background:var(--ink);color:var(--paper);border:0;border-radius:6px;font:inherit;font-size:12px}
+@keyframes intro-orbit{to{transform:rotate(360deg)}}@keyframes intro-blink{to{opacity:0}}@keyframes intro-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:400px){.intro-preview{padding:20px 0;gap:24px}.intro-lines{font-size:11px}.intro-choices button{padding:10px;font-size:11px}.intro-brand h1{font-size:38px}}
+@media(prefers-reduced-motion:reduce){.first-visit *{animation:none!important;transition:none!important}}

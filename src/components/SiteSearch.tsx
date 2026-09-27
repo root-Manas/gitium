@@ -37,5 +37,5 @@ export function PageSearch(props: Props) {
 export function DefaultSearch({ initial = "", scope = "projects" }: { initial?: string; scope?: Scope }) {
   const [value, setValue] = useState(initial);
   const router = useRouter();
-  return <SiteSearch scope={scope} value={value} onChange={setValue} onSubmit={() => router.push(destination(scope, value))} />;
+  return <SiteSearch scope={scope} value={value} onChange={setValue} placeholder={scope === "people" ? "Search people on GitHub…" : "Search projects…"} onSubmit={() => router.push(destination(scope, value))} />;
 }

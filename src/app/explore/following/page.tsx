@@ -4,6 +4,8 @@ import { discoverFromPeople, getFeed } from "@/lib/github";
 import { Shell } from "@/components/Shell";
 import { FeedView } from "@/components/FeedView";
 import { DiscoveryPanel } from "@/components/DiscoveryPanel";
+import { ExploreTabs } from "@/components/ExploreTabs";
+import { DefaultSearch } from "@/components/SiteSearch";
 
 export const metadata = {
   title: "Following",
@@ -20,7 +22,7 @@ export default async function FollowingPage() {
     })),
   ]);
   return (
-    <Shell authReady={authEnabled()} dataReady={dbConfigured()}>
+    <Shell pageSearch authReady={authEnabled()} dataReady={dbConfigured()}>
       <div className="wide-page explore-v2 following-page">
         <header className="explore-heading">
           <div>
@@ -30,6 +32,7 @@ export default async function FollowingPage() {
             <p>Projects and updates from the people you follow.</p>
           </div>
         </header>
+        <div className="explore-workbench"><div className="explore-toolbar"><ExploreTabs view="following"/><DefaultSearch scope="people"/></div></div>
         <DiscoveryPanel example={example.projects} />
         <FeedView discover={feed.events} authReady={authEnabled()} />
       </div>

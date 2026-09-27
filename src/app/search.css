@@ -7,6 +7,16 @@
 .site-search button:hover{background:var(--lilac);color:var(--accent)}
 .code-input-help{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px;font-size:12px}
 .status-banner{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+.page-heading{padding:0 0 20px;margin-bottom:22px;border-bottom:0}
+.page-heading h1{margin-top:8px}
+.explore-person,html[data-theme="dark"] .explore-person{background:var(--paper);border-color:var(--line);gap:14px;padding:18px}
+.explore-person>div>a{display:flex;align-items:center;gap:6px;overflow-wrap:anywhere}
+.explore-person .person-github{font-size:11px;color:var(--muted);font-weight:400;margin-top:6px}
+.explore-person>img{flex:none;object-fit:cover;border-radius:50%;background:var(--hover)}
+.people-page .explore-toolbar{margin-bottom:0}
+.section-bar h2{overflow-wrap:anywhere}
+.route-loading{max-width:1184px;margin:0 auto;padding:40px 24px;color:var(--muted)}.route-loading>span{display:block;font-size:24px;color:var(--ink);margin-bottom:40px}.route-loading>div{height:48px;background:var(--line);opacity:.35;border-radius:6px;margin:16px 0}.route-loading>div:nth-of-type(2){width:70%}.route-loading>div:nth-of-type(3){height:180px}.route-loading>p{font-size:12px}
+@media(max-width:600px){.explore-v2 .explore-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.explore-v2 .explore-controls label{display:flex;flex-direction:column;align-items:stretch;gap:6px;min-width:0}.explore-v2 .explore-controls select{width:100%;max-width:100%;font-size:12px;height:40px}.explore-v2 .explore-controls>button{grid-column:1/-1;justify-self:start;min-height:36px}.explore-v2 .explore-controls:has(select[aria-label="Essential category"]){grid-template-columns:1fr}.explore-person{padding:14px;gap:10px}.explore-person>img{width:38px;height:38px}.explore-person .follow-btn{padding:8px;font-size:11px}.explore-person a{font-size:12px}}
 .main-column>.site-search{margin-bottom:20px}
 .wide-page>.site-search{margin-bottom:18px}
 .explore-v2 .explore-workbench{padding:18px 0;background:transparent;border:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);border-radius:0;box-shadow:none}

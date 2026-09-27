@@ -164,6 +164,13 @@ export async function searchGitHub(query: string): Promise<{ users: GitHubUser[]
   return { users: users.status === 'fulfilled' ? users.value.items : [], repos: repos.status === 'fulfilled' ? repos.value.items : [] };
 }
 
+export async function searchPeople(query: string): Promise<{ users: GitHubUser[]; total: number; incomplete: boolean }> {
+  const clean = query.trim().slice(0, 80);
+  const search = clean ? `${clean} type:user` : 'type:user followers:>100';
+  const data = await githubGet<{ items: GitHubUser[]; total_count: number; incomplete_results: boolean }>(`/search/users?q=${encodeURIComponent(search)}&sort=followers&order=desc&per_page=18`, 600);
+  return { users: data.items, total: data.total_count, incomplete: data.incomplete_results };
+}
+
 export async function getTrendingRepos(): Promise<GitHubRepo[]> {
   const date = new Date(Date.now() - 30 * 86400000).toISOString().slice(0, 10);
   const data = await githubGet<{ items: GitHubRepo[] }>(`/search/repositories?q=${encodeURIComponent(`created:>${date} stars:>20`)}&sort=stars&order=desc&per_page=6`, 3600);

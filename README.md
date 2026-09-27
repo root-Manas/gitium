@@ -2,55 +2,47 @@
 
 ### Find your next GitHub project.
 
-Find useful GitHub projects and the organizations behind them. Browse by language and topic, explore their commit history, and find something to contribute to.
+A place to discover open source, meet the people behind it, and find work you want to contribute to.
 
-[Explore Gitium](https://gitium.vercel.app) · [Meet the maker](https://manasraj.vercel.app)
+**[Open Gitium →](https://gitium.vercel.app)** · [Made by Manas Raj](https://manasraj.vercel.app)
 
-![Gitium project discovery](docs/preview.png)
+![Explore projects on Gitium](docs/preview.png)
 
-## Find projects through people
+## Start with a good find
 
-Start with **top projects** ranked by stars, forks or recent updates. Search by language, topic, owner and creation date, or browse organizations by followers and repository count. Every filtered page has a shareable URL.
+Browse public projects by language, topic, stars, forks, or recent updates. Explore organizations and their repositories. Search **1,000+ essentials** across developer tools, self-hosting, security, and more.
 
-**Essentials** brings together more than **1,000 projects** across dozens of categories. Search instantly, filter by what you need, then explore the code or find an issue. The community catalog is adapted from [Awesome Selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted), with separately authored Gitium starter picks. [Catalog attribution and license](public/catalog/ATTRIBUTION.md).
+One search field. Clear filters. Links you can share.
 
-Explore updates as you search. One-click topic filters, language selection, repository links and shareable searches make it easier to narrow things down. Light and dark themes use the same compact layout.
+## Find your people
 
-Your GitHub follows are your starting point. Gitium brings together the repositories they recently starred and shows exactly who found each one. When several people in your circle pick the same project, you can see the overlap. Follow or unfollow someone in Gitium and the change appears on GitHub too.
+Discover GitHub profiles, search for someone, and follow their work. Following brings together their updates and starred projects, including the picks shared by several people in your network. Follow and unfollow changes sync with GitHub.
 
-## See the code behind an account
+## Go beyond the repository name
 
-Open any GitHub profile to see a year of contributions, its recent repository languages, and the most starred projects in the sample. Open a public repository to graph its recent commit cadence, contributors, and changes. Gitium also gives every account an **illustrative dollar estimate** using a visible formula based on contributions, followers, stars, and repositories. It is a way to compare public activity, not a sale price or financial valuation. A local history in your browser lets you see how an estimate changes over time.
+- **Code graph:** recent commits, contributors, and activity on a public repository’s default branch. Paste `owner/repo` or a GitHub URL.
+- **Accounts:** a year of contributions, repository languages, and a playful dollar score with visible additions and deductions. It is not a financial valuation.
+- **Contribute:** open issues filtered by language, repository, labels, and assignment status. Read the original issue and check with its maintainer before starting.
+- **Leaderboards:** the ten most explored repositories and highest recorded account scores for the day, week, month, or year.
 
-## Find an issue
+## Keep the useful bits
 
-Browse open GitHub issues by language, repository, recent activity, and the project’s **good first issue** or **help wanted** labels. Filter for unassigned work, read the details, and go directly to the original issue. Check with the maintainers before starting.
+Bring in your GitHub stars. Filter them, open a code graph, or return to the original project. Save activity for later in your browser.
 
-## Give work a place to talk
+## Talk privately
 
-- **Private rooms:** invite people into repository and organization chats.
-- **Direct chat:** send a request. The recipient accepts or declines before messages unlock. Cancel pending requests or block someone at any time.
+Direct messages begin with a request the recipient accepts or declines. Repository and organization rooms are invitation-only.
 
-Room invitations have Join and Decline controls. Direct chats require mutual consent, and a declined request cannot be sent again by its original sender. Blocking stops DMs and new invitations between the two accounts. Existing shared rooms keep their membership rules; leave a room to stop participating there. Repository and organization rooms are created by Gitium users and are not official GitHub-managed spaces.
+New messages are **end-to-end encrypted** on verified devices. Compare fingerprints before chatting and keep an encrypted recovery file. Encrypted messages are retained for 30 days. Earlier plaintext history is separately labelled; it is not retroactively encrypted.
 
-New messages are **end-to-end encrypted** on your devices. Compare device fingerprints before chatting, and keep an encrypted recovery file for your history. Earlier plaintext messages stay in a separate history section; they are not converted to encrypted messages. Encrypted messages are retained for 30 days.
+## Make yourself at home
 
-## Bring your stars along
+A brief interactive introduction, typewriter lettering, light and dark themes, and layouts made for phones as well as desktops. No installation required.
 
-Open your library to import GitHub stars, filter the list, and explore a repository's code graph. Your star list is read from GitHub rather than copied into Gitium's database.
-
-## See what people are exploring
-
-Code and account leaderboards show the top ten for today, seven days, thirty days, or a year. Repository rankings count one signed-in exploration per person per repository each day. Account rankings use computed score snapshots, including deductions for stale projects, forks, and concentrated stars.
-
-## Keep up without losing the source
-
-Browse recent work from your GitHub network, save useful links in your browser, and open the original commit, issue, pull request, release, or repository on GitHub. Gitium shows where a project came from and lets you decide what matters.
-
-## Your account, your view
-
-Gitium reads public project and account information from GitHub when you use it. It stores your Gitium conversations so participants can read and reply, while saved links and estimate history stay in your browser. Light and dark themes are built in.
+**[Find something on Gitium](https://gitium.vercel.app/explore)**
 
 ---
 
-**Gitium** is made by [Manas Raj](https://manasraj.vercel.app).
+Essentials includes community descriptions from [Awesome Selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted), alongside Gitium starter picks. [Attribution and license](public/catalog/ATTRIBUTION.md).
+
+Gitium is an independent project by [Manas Raj](https://manasraj.vercel.app), not affiliated with GitHub.
