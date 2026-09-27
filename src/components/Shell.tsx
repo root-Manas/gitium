@@ -5,7 +5,6 @@ import {
   Bookmark,
   Compass,
   Github,
-  Home,
   LogOut,
   Search,
   MessageCircle,
@@ -18,14 +17,13 @@ import {
   X,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 
 const links = [
   { href: "/explore", label: "Explore", icon: Compass },
   { href: "/contribute", label: "Contribute", icon: GitPullRequest },
   { href: "/code", label: "Code graph", icon: GitCommitHorizontal },
   { href: "/insights", label: "Accounts", icon: ChartNoAxesCombined },
-  { href: "/", label: "Following", icon: Home },
   { href: "/saved", label: "Saved", icon: Bookmark },
   { href: "/spaces", label: "Messages", icon: MessageCircle },
 ];
@@ -43,8 +41,17 @@ export function Shell({
   const [more, setMore] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  useEffect(()=>{
+    if(!more)return;
+    const outside=(event:PointerEvent)=>{if(!(event.target as Element).closest('#more-navigation, [aria-controls="more-navigation"]'))setMore(false)};
+    const escape=(event:KeyboardEvent)=>{if(event.key==='Escape'){setMore(false);const trigger=[...document.querySelectorAll<HTMLButtonElement>('[aria-controls="more-navigation"]')].find(el=>el.offsetParent!==null);trigger?.focus()}};
+    document.addEventListener('pointerdown',outside);document.addEventListener('keydown',escape);
+    return()=>{document.removeEventListener('pointerdown',outside);document.removeEventListener('keydown',escape)};
+  },[more]);
   const active = (href: string) =>
-    pathname === href || (href === "/explore" && pathname === "/search");
+    pathname === href ||
+    (href === "/explore" &&
+      (pathname.startsWith("/explore/") || pathname === "/search"));
   function toggleTheme() {
     const theme =
       document.documentElement.dataset.theme === "dark" ? "light" : "dark";
@@ -92,7 +99,7 @@ export function Shell({
             </span>
             <span>gitium</span>
           </Link>
-          {pathname === "/explore" ? (
+          {pathname.startsWith("/explore") ? (
             <div className="top-context">
               Discover open source<span>/</span>
               <strong>Explore</strong>
@@ -148,11 +155,16 @@ export function Shell({
           <div className="rail-sticky">
             <div className="rail-section-label">Discover</div>
             <nav className="main-nav" aria-label="Main navigation">
-              {links.slice(0, 4).map(navLink)}
-              <div className="rail-section-label nav-group-label">
-                Your library
-              </div>
-              {links.slice(4).map(navLink)}
+              {links.filter((l) => l.href !== "/saved").map(navLink)}
+              <button
+                className={`desktop-more-trigger ${more || pathname === "/saved" ? "active" : ""}`}
+                aria-expanded={more}
+                aria-controls="more-navigation"
+                onClick={() => setMore(!more)}
+              >
+                <MoreHorizontal size={19} />
+                <span>More</span>
+              </button>
             </nav>
             <div className="rail-footer">
               {!dataReady && (
@@ -182,18 +194,18 @@ export function Shell({
             </button>
           </div>
           {links
-            .filter((l) => ["/contribute", "/insights", "/"].includes(l.href))
+            .filter((l) => ["/contribute", "/saved"].includes(l.href))
             .map(navLink)}
         </div>
       )}
       <nav className="mobile-nav" aria-label="Mobile navigation">
         {links
           .filter((l) =>
-            ["/explore", "/code", "/saved", "/spaces"].includes(l.href),
+            ["/explore", "/code", "/insights", "/spaces"].includes(l.href),
           )
           .map(navLink)}
         <button
-          className={more ? "active" : ""}
+          className={more || ["/saved", "/contribute"].includes(pathname) ? "active" : ""}
           aria-expanded={more}
           aria-controls="more-navigation"
           onClick={() => setMore(!more)}
