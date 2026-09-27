@@ -12,9 +12,15 @@ const tabs = [
   },
   {
     key: "essentials",
-    label: "Essentials · 1,000+",
+    label: "Essentials",
     href: "/explore?view=essentials",
     icon: Terminal,
+  },
+  {
+    key: "people",
+    label: "People",
+    href: "/search",
+    icon: Users,
   },
   {
     key: "following",
@@ -33,7 +39,7 @@ export function ExploreTabs({
   return (
     <nav className="explore-switch" aria-label="Explore categories">
       {tabs.map(({ key, label, href, icon: Icon }) =>
-        onSelect && key !== "following" ? (
+        onSelect && !["following", "people"].includes(key) ? (
           <button
             key={key}
             aria-current={view === key ? "page" : undefined}

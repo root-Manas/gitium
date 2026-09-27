@@ -36,7 +36,7 @@ try {
   await page.getByRole('heading',{name:'No tools found'}).waitFor();
   await page.getByRole('button',{name:'Clear search',exact:true}).click();
   await page.locator('.project-tile').first().waitFor();
-  await page.getByLabel('Search in',{exact:true}).selectOption('code');
+  await page.goto(base+'/code');
   await page.getByRole('heading',{name:'Explore a repository.'}).waitFor();
   await page.getByRole('textbox',{name:'Search Gitium',exact:true}).fill('alice');
   await page.getByRole('button',{name:'Search',exact:true}).click();
