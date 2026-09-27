@@ -9,6 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "node --test tests/*.test.mjs",
+    "test:chat": "node tests/chat.integration.mjs",
     "db:setup": "wrangler d1 execute gitium --remote --file=./schema.sql --yes",
     "worker:dev": "wrangler dev",
     "worker:deploy": "wrangler deploy"

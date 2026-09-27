@@ -37,3 +37,67 @@ CREATE TABLE IF NOT EXISTS messages (
 );
 CREATE INDEX IF NOT EXISTS idx_messages_room ON messages(scope, target, created_at DESC);
 CREATE INDEX IF NOT EXISTS idx_messages_author ON messages(author_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS rooms (
+  id TEXT PRIMARY KEY,
+  scope TEXT NOT NULL,
+  target TEXT NOT NULL,
+  owner_id TEXT NOT NULL,
+  owner_login TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+CREATE INDEX IF NOT EXISTS idx_rooms_owner ON rooms(owner_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS room_members (
+  room_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  login TEXT NOT NULL,
+  role TEXT NOT NULL DEFAULT 'member',
+  joined_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY(room_id, user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_room_members_user ON room_members(user_id, joined_at DESC);
+
+CREATE TABLE IF NOT EXISTS room_invites (
+  room_id TEXT NOT NULL,
+  login TEXT NOT NULL,
+  invited_by TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY(room_id, login)
+);
+CREATE INDEX IF NOT EXISTS idx_room_invites_login ON room_invites(login, created_at DESC);
+
+-- Invitations bind to permanent GitHub IDs. Legacy username invitations are never accepted.
+CREATE TABLE IF NOT EXISTS room_invitations (
+  room_id TEXT NOT NULL,
+  user_id TEXT NOT NULL,
+  login TEXT NOT NULL,
+  invited_by TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  PRIMARY KEY(room_id, user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_room_invitations_user ON room_invitations(user_id, created_at DESC);
+
+CREATE TABLE IF NOT EXISTS code_run_views (
+  user_id TEXT NOT NULL,
+  repo TEXT NOT NULL,
+  day TEXT NOT NULL,
+  PRIMARY KEY(user_id, repo, day)
+);
+CREATE INDEX IF NOT EXISTS idx_code_run_views_user_day ON code_run_views(user_id, day);
+
+CREATE TABLE IF NOT EXISTS code_run_totals (
+  day TEXT NOT NULL,
+  repo TEXT NOT NULL,
+  views INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY(day, repo)
+);
+CREATE INDEX IF NOT EXISTS idx_code_run_totals_day ON code_run_totals(day);
+
+CREATE TABLE IF NOT EXISTS account_runs (
+  day TEXT NOT NULL,
+  login TEXT NOT NULL,
+  value_usd INTEGER NOT NULL,
+  PRIMARY KEY(day, login)
+);
+CREATE INDEX IF NOT EXISTS idx_account_runs_day ON account_runs(day, value_usd DESC);

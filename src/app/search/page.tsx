@@ -7,7 +7,7 @@ import { FollowButton } from '@/components/FollowButton';
 import { ArrowUpRight, Search, Star } from 'lucide-react';
 import Link from 'next/link';
 
-export const metadata = { title: 'Search' };
+export const metadata = { title: 'Search', robots: { index: false, follow: true }, alternates: { canonical: '/search' } };
 export default async function SearchPage({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
   const query = String((await searchParams).q || '').trim().slice(0, 80);
   const [results, follows] = await Promise.all([searchGitHub(query).then(data => ({ ...data, unavailable: false })).catch(() => ({ users: [], repos: [], unavailable: true })), getFollowedLogins()]);

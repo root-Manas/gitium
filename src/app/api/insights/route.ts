@@ -2,6 +2,8 @@ import { NextRequest } from 'next/server';
 import { getToken } from 'next-auth/jwt';
 import { json } from '@/lib/api';
 import { getUser, githubGet, GitHubRepo, validLogin } from '@/lib/github';
+import { estimateAccount } from '@/lib/value';
+import { dbConfigured, queryD1 } from '@/lib/d1';
 
 type Day = { date: string; contributionCount: number; contributionLevel: string };
 type GraphResponse = { data?: { user?: { contributionsCollection: { contributionCalendar: { totalContributions: number; weeks: { contributionDays: Day[] }[] } } } }; errors?: { message: string }[] };
@@ -28,11 +30,14 @@ export async function GET(request: NextRequest) {
     const calendar = data.data?.user?.contributionsCollection.contributionCalendar;
     if (!calendar) return json({ error: 'GitHub could not load the contribution graph.' }, 502);
     const contributions = calendar.totalContributions;
-    const stars = repos.reduce((sum, repo) => sum + (repo.stargazers_count || 0), 0);
     const followers = profile.followers || 0;
     const publicRepos = profile.public_repos || 0;
-    const value = 500 + Math.min(contributions, 5000) * 2 + Math.min(followers, 10000) * 25 + Math.min(stars, 20000) * 10 + Math.min(publicRepos, 500) * 15;
+    const estimate = estimateAccount(contributions, followers, repos);
+    if (dbConfigured()) {
+      try { await queryD1('INSERT INTO account_runs(day,login,value_usd) VALUES(?,?,?) ON CONFLICT(day,login) DO UPDATE SET value_usd=excluded.value_usd', [new Date().toISOString().slice(0, 10), profile.login.toLowerCase(), estimate.value]); }
+      catch (error) { console.error('Could not record account run:', error); }
+    }
     const languages = Object.entries(repos.reduce<Record<string, number>>((counts, repo) => { if (repo.language) counts[repo.language] = (counts[repo.language] || 0) + 1; return counts; }, {})).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([name, count]) => ({ name, count }));
-    return json({ login: profile.login, avatar: profile.avatar_url, contributions, followers, stars, publicRepos, sampledRepos: repos.length, value, languages, weeks: calendar.weeks, repos: repos.sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 8).map(repo => ({ name: repo.full_name, stars: repo.stargazers_count, language: repo.language, url: repo.html_url })) });
+    return json({ login: profile.login, avatar: profile.avatar_url, contributions, followers, publicRepos, sampledRepos: repos.length, estimate, weeks: calendar.weeks, languages, repos: repos.sort((a, b) => b.stargazers_count - a.stargazers_count).slice(0, 8).map(repo => ({ name: repo.full_name, stars: repo.stargazers_count, language: repo.language, url: repo.html_url })) });
   } catch { return json({ error: 'GitHub could not load this account. Check the username or try again soon.' }, 502); }
 }

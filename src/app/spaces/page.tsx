@@ -1,11 +1,10 @@
 import { authEnabled } from '@/lib/auth';
 import { dbConfigured } from '@/lib/d1';
 import { Shell } from '@/components/Shell';
-import { SpaceView } from '@/components/SpaceView';
+import { ChatView } from '@/components/ChatView';
 
-export const metadata = { title: 'Spaces' };
-export default async function SpacesPage({ searchParams }: { searchParams: Promise<{ kind?: string; target?: string }> }) {
+export const metadata = { title: 'Private chats', robots: { index: false, follow: false } };
+export default async function SpacesPage({ searchParams }: { searchParams: Promise<{ room?: string; dm?: string }> }) {
   const params = await searchParams;
-  const kind = ['user', 'repo', 'org', 'dm'].includes(params.kind || '') ? params.kind as 'user' | 'repo' | 'org' | 'dm' : 'user';
-  return <Shell authReady={authEnabled()} dataReady={dbConfigured()}><SpaceView initialKind={kind} initialTarget={params.target || ''}/></Shell>;
+  return <Shell authReady={authEnabled()} dataReady={dbConfigured()}><ChatView initialRoom={params.room || ''} initialDm={params.dm || ''}/></Shell>;
 }

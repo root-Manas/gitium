@@ -8,7 +8,7 @@ import { FollowButton } from '@/components/FollowButton';
 import { ArrowUpRight, Search, Star } from 'lucide-react';
 import Link from 'next/link';
 
-export const metadata = { title: 'Explore' };
+export const metadata = { title: 'Explore GitHub projects', description: 'Find open source projects and people through GitHub activity and your network.', alternates: { canonical: '/explore' } };
 const people = [
   { login: 'sindresorhus', subtitle: 'Building and maintaining open source' },
   { login: 'jessfraz', subtitle: 'Systems and open source' },

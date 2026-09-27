@@ -21,11 +21,11 @@ test('normalizes a GitHub event into a safe feed item', () => {
   assert.equal(normalizeEvent({ ...base, payload: { ...base.payload, pull_request: { ...base.payload.pull_request, html_url: 'https://bad.example/' } } })?.url, 'https://github.com/owner/repository');
 });
 
-test('validates GitHub logins and stores only identity, connections, and Gitium conversations', () => {
+test('validates GitHub logins and keeps the D1 schema to Gitium-owned data', () => {
   assert.equal(validLogin('root-Manas'), true);
   assert.equal(validLogin('../admin'), false);
   const schema = fs.readFileSync(new URL('../schema.sql', import.meta.url), 'utf8');
-  assert.deepEqual([...schema.matchAll(/CREATE TABLE IF NOT EXISTS (\w+)/g)].map(match => match[1]), ['users', 'follows', 'posts', 'messages']);
+  assert.deepEqual([...schema.matchAll(/CREATE TABLE IF NOT EXISTS (\w+)/g)].map(match => match[1]), ['users', 'follows', 'posts', 'messages', 'rooms', 'room_members', 'room_invites', 'room_invitations', 'code_run_views', 'code_run_totals', 'account_runs']);
 });
 
 test('recommends overlap from followed people and excludes projects already starred by the user', () => {

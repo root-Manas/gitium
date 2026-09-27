@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  const invalid = checkWrite(request); if (invalid) return invalid;
+  const invalid = await checkWrite(request); if (invalid) return invalid;
   const user = await currentUser(); if (!user) return json({ error: 'Sign in with GitHub to post.' }, 401);
   const unavailable = requireD1(); if (unavailable) return unavailable;
   try {
@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
 }
 
 export async function DELETE(request: NextRequest) {
-  const invalid = checkWrite(request); if (invalid) return invalid;
+  const invalid = await checkWrite(request); if (invalid) return invalid;
   const user = await currentUser(); if (!user) return json({ error: 'Sign in first.' }, 401);
   const unavailable = requireD1(); if (unavailable) return unavailable;
   try {

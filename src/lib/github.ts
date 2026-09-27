@@ -11,8 +11,8 @@ export type FeedEvent = {
   isPrivate: boolean;
 };
 
-export type GitHubUser = { login: string; avatar_url: string; html_url: string; bio?: string | null; public_repos?: number; followers?: number };
-export type GitHubRepo = { id: number; full_name: string; description: string | null; html_url: string; language: string | null; stargazers_count: number; forks_count: number; owner: { login: string; avatar_url: string } };
+export type GitHubUser = { id: number; login: string; avatar_url: string; html_url: string; bio?: string | null; public_repos?: number; followers?: number };
+export type GitHubRepo = { id: number; full_name: string; description: string | null; html_url: string; language: string | null; stargazers_count: number; forks_count: number; fork?: boolean; archived?: boolean; pushed_at?: string | null; owner: { login: string; avatar_url: string } };
 export type ProjectRecommendation = { repo: GitHubRepo; starredBy: string[] };
 
 type RawEvent = {

@@ -1,6 +1,7 @@
 import { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { getToken } from 'next-auth/jwt';
+import { createHmac } from 'node:crypto';
 import { json } from '@/lib/api';
 import { githubGet, validLogin } from '@/lib/github';
 
@@ -36,7 +37,8 @@ export async function GET(request: NextRequest) {
       counts[login] = (counts[login] || 0) + 1;
       return counts;
     }, {})).sort((a, b) => b[1] - a[1]).slice(0, 8).map(([login, count]) => ({ login, count }));
-    return NextResponse.json({ repo: { name: repo.full_name, description: repo.description, branch: repo.default_branch, url: repo.html_url }, sampled: commits.length, days, authors, commits: commits.slice(0, 12).map(item => ({ sha: item.sha.slice(0, 7), url: item.html_url, title: item.commit.message.split('\n')[0].slice(0, 150), author: item.author?.login || item.commit.author?.name || 'Unknown', date: item.commit.author?.date })) }, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' } });
+    const proof = createHmac('sha256', process.env.NEXTAUTH_SECRET || 'local-preview').update(repo.full_name.toLowerCase()).digest('hex');
+    return NextResponse.json({ repo: { name: repo.full_name, description: repo.description, branch: repo.default_branch, url: repo.html_url }, proof, sampled: commits.length, days, authors, commits: commits.slice(0, 12).map(item => ({ sha: item.sha.slice(0, 7), url: item.html_url, title: item.commit.message.split('\n')[0].slice(0, 150), author: item.author?.login || item.commit.author?.name || 'Unknown', date: item.commit.author?.date })) }, { headers: { 'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=600' } });
   } catch (error) {
     if (error instanceof Error && error.message.includes('404')) return json({ error: 'Repository not found. Check the GitHub URL or owner/repository name.' }, 404);
     if (error instanceof Error && error.message.includes('rate limit')) return json({ error: 'GitHub is limiting public lookups. Sign in with GitHub and retry.' }, 429);

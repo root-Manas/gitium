@@ -1,8 +1,8 @@
 # Gitium
 
-### Find the work worth following.
+### Find your next GitHub project.
 
-Gitium is a place to discover projects through people you trust, understand the code behind an account, and keep the conversation close to the work.
+Find repositories through people you follow, explore their commit history, and talk with other developers.
 
 [Explore Gitium](https://gitium.vercel.app) · [Meet the maker](https://manasraj.vercel.app)
 
@@ -19,10 +19,18 @@ Open any GitHub profile to see a year of contributions, its recent repository la
 ## Give work a place to talk
 
 - **Posts:** publish on your own profile or add a public post to a repository or organization space.
-- **Room chat:** talk inside repository and organization spaces.
+- **Private rooms:** invite people into repository and organization chats.
 - **Direct chat:** message another Gitium user privately.
 
-Posts and room chats are public and display the writer's GitHub username. Direct chats are visible only to the two people in that conversation.
+Posts are public and display the writer's GitHub username. Room access is limited to invited members; direct chats are limited to their two participants. Chats are **not yet end-to-end encrypted**; Gitium's server processes message text.
+
+## Bring your stars along
+
+Open your library to import GitHub stars, filter the list, and explore a repository's code graph. Your star list is read from GitHub rather than copied into Gitium's database.
+
+## See what people are exploring
+
+Code and account leaderboards show the top ten for today, seven days, thirty days, or a year. Repository rankings count one signed-in exploration per person per repository each day. Account rankings use computed score snapshots, including deductions for stale projects, forks, and concentrated stars.
 
 ## Keep up without losing the source
 

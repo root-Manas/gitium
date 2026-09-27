@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { signIn, signOut, useSession } from 'next-auth/react';
-import { Bookmark, Compass, Github, Home, LogOut, Search, MessageCircle, ChartNoAxesCombined, Moon, Sun, GitCommitHorizontal } from 'lucide-react';
+import { Bookmark, Compass, Github, Home, LogOut, Search, MessageCircle, ChartNoAxesCombined, Moon, Sun, GitCommitHorizontal, FileText } from 'lucide-react';
 import { usePathname, useRouter } from 'next/navigation';
 import { FormEvent, useState } from 'react';
 
@@ -21,11 +21,11 @@ export function Shell({ children, authReady, dataReady }: { children: React.Reac
     <div className="layout">
       <aside className="left-rail"><div className="rail-sticky">
         <div className="rail-section-label">YOUR SPACE</div>
-        <nav className="main-nav" aria-label="Main navigation"><Link className={pathname === '/' ? 'active' : ''} href="/"><Home size={19} /> Feed</Link><Link className={pathname === '/explore' || pathname === '/search' ? 'active' : ''} href="/explore"><Compass size={19} /> Explore</Link><Link className={pathname === '/code' ? 'active' : ''} href="/code"><GitCommitHorizontal size={19} /> Code graph</Link><Link className={pathname === '/insights' ? 'active' : ''} href="/insights"><ChartNoAxesCombined size={19} /> Accounts</Link><Link className={pathname === '/spaces' ? 'active' : ''} href="/spaces"><MessageCircle size={19} /> Spaces</Link><Link className={pathname === '/saved' ? 'active' : ''} href="/saved"><Bookmark size={19} /> Saved</Link></nav>
-        <div className="rail-footer">{!dataReady && <p>Following is unavailable right now.</p>}<span>Gitium</span><a href="https://github.com/root-Manas/gitium" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a></div>
+        <nav className="main-nav" aria-label="Main navigation"><Link className={pathname === '/' ? 'active' : ''} href="/"><Home size={19} /> Feed</Link><Link className={pathname === '/explore' || pathname === '/search' ? 'active' : ''} href="/explore"><Compass size={19} /> Explore</Link><Link className={pathname === '/code' ? 'active' : ''} href="/code"><GitCommitHorizontal size={19} /> Code graph</Link><Link className={pathname === '/insights' ? 'active' : ''} href="/insights"><ChartNoAxesCombined size={19} /> Accounts</Link><Link className={pathname === '/posts' ? 'active' : ''} href="/posts"><FileText size={19} /> Posts</Link><Link className={pathname === '/spaces' ? 'active' : ''} href="/spaces"><MessageCircle size={19} /> Private chat</Link><Link className={pathname === '/saved' ? 'active' : ''} href="/saved"><Bookmark size={19} /> Saved</Link></nav>
+        <div className="rail-footer">{!dataReady && <p>Some account features are temporarily unavailable.</p>}<span>Gitium</span><a href="https://github.com/root-Manas/gitium" target="_blank" rel="noopener noreferrer">Source on GitHub ↗</a></div>
       </div></aside>
       <main className="main-column">{children}</main>
     </div>
-    <nav className="mobile-nav" aria-label="Mobile navigation"><Link className={pathname === '/' ? 'active' : ''} href="/"><Home size={20} />Feed</Link><Link className={pathname === '/explore' || pathname === '/search' ? 'active' : ''} href="/explore"><Compass size={20} />Explore</Link><Link className={pathname === '/code' ? 'active' : ''} href="/code"><GitCommitHorizontal size={20} />Code</Link><Link className={pathname === '/insights' ? 'active' : ''} href="/insights"><ChartNoAxesCombined size={20} />Accounts</Link><Link className={pathname === '/spaces' ? 'active' : ''} href="/spaces"><MessageCircle size={20} />Spaces</Link><Link className={pathname === '/saved' ? 'active' : ''} href="/saved"><Bookmark size={20} />Saved</Link></nav>
+    <nav className="mobile-nav" aria-label="Mobile navigation"><Link className={pathname === '/' ? 'active' : ''} href="/"><Home size={19} />Feed</Link><Link className={pathname === '/explore' || pathname === '/search' ? 'active' : ''} href="/explore"><Compass size={19} />Explore</Link><Link className={pathname === '/code' ? 'active' : ''} href="/code"><GitCommitHorizontal size={19} />Code</Link><Link className={pathname === '/insights' ? 'active' : ''} href="/insights"><ChartNoAxesCombined size={19} />Value</Link><Link className={pathname === '/posts' ? 'active' : ''} href="/posts"><FileText size={19} />Posts</Link><Link className={pathname === '/spaces' ? 'active' : ''} href="/spaces"><MessageCircle size={19} />Chat</Link><Link className={pathname === '/saved' ? 'active' : ''} href="/saved"><Bookmark size={19} />Saved</Link></nav>
   </div>;
 }

@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
 }
 
 async function change(request: NextRequest, method: 'PUT' | 'DELETE') {
-  const invalid = checkWrite(request); if (invalid) return invalid;
+  const invalid = await checkWrite(request); if (invalid) return invalid;
   const { access, login: self } = await identity(request);
   if (!access || !self) return json({ error: 'Sign in with GitHub first.' }, 401);
   let login = '';
