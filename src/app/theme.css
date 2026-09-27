@@ -1,3 +1,17 @@
+@font-face {
+  font-family: "Courier Prime";
+  src: url("/fonts/courier-prime/regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Courier Prime";
+  src: url("/fonts/courier-prime/bold.ttf") format("truetype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
 /* Shared product surfaces. Keep theme values here rather than in components. */
 :root {
   --bg: #f7f7f5;
@@ -36,7 +50,7 @@ html[data-theme="dark"] {
 body {
   background: var(--bg);
   color: var(--ink);
-  font-family: "DM Sans", Arial, sans-serif;
+  font-family: "Courier Prime", "Courier New", monospace;
   font-size: 14px;
 }
 ::selection {
@@ -150,8 +164,8 @@ html[data-theme="dark"] .top-search input {
 .rail-section-label {
   display: none;
   font:
-    500 11px "DM Sans",
-    sans-serif;
+    500 11px "Courier Prime",
+    monospace;
   letter-spacing: 0.2px;
   text-transform: none;
   color: var(--muted);
@@ -283,17 +297,19 @@ html[data-theme="dark"] .top-search input {
   font-size: 13px;
   white-space: nowrap;
 }
-.explore-switch button[aria-current="page"] {
+.explore-switch button[aria-current="page"],
+.explore-switch a[aria-current="page"] {
   color: var(--ink);
   border-bottom-color: var(--ink);
   font-weight: 600;
 }
-.explore-switch button[aria-current="page"] svg {
+.explore-switch button[aria-current="page"] svg,
+.explore-switch a[aria-current="page"] svg {
   color: var(--accent);
 }
 .explore-switch > a {
-  margin-left: auto;
-  font-size: 12px;
+  margin-left: 0;
+  font-size: 13px;
 }
 .explore-searchbox {
   display: flex;
@@ -363,8 +379,8 @@ html[data-theme="dark"] .top-search input {
   color: var(--ink);
   padding: 7px 9px;
   font:
-    12px "DM Sans",
-    sans-serif;
+    12px "Courier Prime",
+    monospace;
 }
 .explore-controls > button {
   margin-left: auto;
@@ -647,8 +663,8 @@ html[data-theme="dark"] .top-search input {
 }
 .eyebrow {
   font:
-    500 11px "DM Sans",
-    sans-serif;
+    500 11px "Courier Prime",
+    monospace;
   color: var(--muted);
   letter-spacing: 0.3px;
 }
@@ -734,7 +750,68 @@ html[data-theme="dark"] .queue-view button.active {
   color: var(--accent);
 }
 .mobile-more {
-  display: none;
+  display: block;
+  position: fixed;
+  right: max(28px, calc((100vw - 1184px) / 2));
+  top: 138px;
+  width: 270px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: 0 12px 50px #0002;
+  padding: 16px;
+  z-index: 35;
+}
+.mobile-more > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+.mobile-more button {
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+}
+.mobile-more > a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 8px;
+  color: var(--ink);
+  font-size: 14px;
+  border-radius: 6px;
+}
+.mobile-more > a:hover {
+  background: var(--hover);
+}
+.desktop-more-trigger {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 0 12px;
+  border-radius: 7px;
+  font-size: 13px;
+}
+.desktop-more-trigger:hover,
+.desktop-more-trigger.active {
+  background: var(--paper);
+  color: var(--ink);
+}
+.following-page > .explore-workbench {
+  margin-bottom: 24px;
+}
+.following-page .explore-switch {
+  margin-bottom: 0;
+  border-bottom: 0;
+}
+.following-page .discovery-section {
+  margin-top: 24px;
 }
 .essential-icon img {
   width: 38px;
@@ -776,7 +853,7 @@ html[data-theme="dark"] .queue-view button.active {
     width: 144px;
   }
   .explore-switch > a {
-    display: none;
+    display: flex;
   }
   .top-context {
     font-size: 11px;
@@ -835,8 +912,8 @@ html[data-theme="dark"] .queue-view button.active {
     background: none;
     color: var(--muted);
     font:
-      500 10px "DM Sans",
-      sans-serif;
+      500 10px "Courier Prime",
+      monospace;
     padding: 8px 2px;
     min-height: 49px;
   }
@@ -846,6 +923,8 @@ html[data-theme="dark"] .queue-view button.active {
     color: var(--accent);
   }
   .mobile-more {
+    top: auto;
+    width: auto;
     display: block;
     position: fixed;
     bottom: calc(78px + env(safe-area-inset-bottom));
@@ -1086,4 +1165,56 @@ html[data-theme="dark"] .queue-view button.active {
   .project-tile:hover {
     transform: none;
   }
+}
+
+/* Use the same type family in inherited views and form controls. */
+body button,
+body input,
+body textarea,
+body select,
+body kbd,
+body code,
+.hero h1 em,
+.hero-label,
+.hero-no,
+.side-card-head,
+.section-bar > span,
+.feed-count,
+.event-type,
+.feed-end,
+.side-period,
+.trend-index,
+.repo-card footer,
+.insight-top span,
+.insight-title span,
+.space-head span,
+.value-history span,
+.leaderboard-list li > span,
+.leaderboard-list li > b,
+.issue-repo,
+.code-input-help code {
+  font-family: "Courier Prime", "Courier New", monospace;
+}
+@media (max-width: 600px) {
+  .explore-switch {
+    display: grid;
+    grid-template-columns: repeat(2,minmax(0,1fr));
+    gap: 0 12px;
+    overflow: visible;
+  }
+  .explore-switch button,.explore-switch>a{font-size:11px;letter-spacing:-.15px;white-space:normal;min-height:42px;padding:10px 0;justify-content:flex-start}
+  .explore-switch > a {
+    font-size: 11px;
+    padding: 10px 0;
+  }
+  .explore-switch > a svg {
+    display: none;
+  }
+  .explore-heading h1 {
+    letter-spacing: -1.2px;
+  }
+  .top-context {
+    display: none;
+  }
+  .explore-controls:has(select[aria-label="Essential category"]) label{flex-basis:100%}
 }

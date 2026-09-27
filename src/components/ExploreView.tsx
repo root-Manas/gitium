@@ -10,12 +10,10 @@ import {
   SlidersHorizontal,
   Star,
   X,
-  Terminal,
-  Layers,
-  Blocks,
 } from "lucide-react";
 import { exploreLanguages, exploreTopics, essentials } from "@/lib/explore";
 import type { ExploreResults } from "@/lib/explore-server";
+import { ExploreTabs } from "./ExploreTabs";
 
 type Project = {
   repo: string;
@@ -225,34 +223,13 @@ export function ExploreView({
         </button>
       </header>
       <div className="explore-workbench">
-        <nav className="explore-switch" aria-label="Explore categories">
-          {[
-            ["projects", "Projects"],
-            ["orgs", "Organizations"],
-            ["essentials", "Essentials · 1,000+"],
-          ].map(([key, label]) => (
-            <button
-              key={key}
-              aria-current={view === key ? "page" : undefined}
-              onClick={() => {
-                setDraft("");
-                change({ view: key }, true);
-              }}
-            >
-              {key === "projects" ? (
-                <Blocks size={16} />
-              ) : key === "orgs" ? (
-                <Layers size={16} />
-              ) : (
-                <Terminal size={16} />
-              )}{" "}
-              {label}
-            </button>
-          ))}
-          <Link href="/contribute">
-            Find an issue <ArrowUpRight size={14} />
-          </Link>
-        </nav>
+        <ExploreTabs
+          view={view}
+          onSelect={(key) => {
+            setDraft("");
+            change({ view: key }, true);
+          }}
+        />
         <div className="explore-searchbox">
           <Search size={22} />
           <input
