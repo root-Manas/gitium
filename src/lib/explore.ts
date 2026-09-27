@@ -3,16 +3,18 @@ export const exploreTopics = ['developer-tools', 'self-hosted', 'security', 'mac
 export function exploreQuery(params: URLSearchParams, now = new Date()) {
   const view = params.get('view') || 'projects';
   const q = (params.get('q') || '').trim();
+  const directRepo = q.match(/^(?:https:\/\/github\.com\/)?([\w.-]+\/[\w.-]+)\/?$/i)?.[1]?.replace(/\.git$/i, '');
   const language = params.get('language') || '';
   const topic = params.get('topic') || '';
   const owner = (params.get('owner') || '').trim();
   const sort = params.get('sort') || (view === 'orgs' ? 'followers' : 'stars');
   const period = params.get('period') || 'all';
   const page = Number(params.get('page') || 1);
-  if (!['projects', 'orgs', 'essentials'].includes(view) || q.length > 60 || !/^[\p{L}\p{N}\s._-]*$/u.test(q) || (language && !exploreLanguages.includes(language)) || (topic && !exploreTopics.includes(topic)) || (owner && !/^[a-z\d][a-z\d-]{0,38}$/i.test(owner)) || !['all', '30', '365'].includes(period) || !Number.isInteger(page) || page < 1 || page > 5 || !(view === 'orgs' ? ['followers', 'repositories'] : ['stars', 'forks', 'updated']).includes(sort)) throw new Error('Choose valid search filters. Keywords can contain letters, numbers, spaces, dots, hyphens and underscores.');
-  const words = q.split(/\s+/).filter(Boolean).map(word => `"${word}"`).join(' ');
+  if (!['projects', 'orgs', 'essentials'].includes(view) || q.length > (directRepo ? 140 : 60) || (!directRepo && !/^[\p{L}\p{N}\s._-]*$/u.test(q)) || (language && !exploreLanguages.includes(language)) || (topic && !exploreTopics.includes(topic)) || (owner && !/^[a-z\d][a-z\d-]{0,38}$/i.test(owner)) || !['all', '30', '365'].includes(period) || !Number.isInteger(page) || page < 1 || page > 5 || !(view === 'orgs' ? ['followers', 'repositories'] : ['stars', 'forks', 'updated']).includes(sort)) throw new Error('Use a project name, GitHub repository link, or short keywords. Advanced GitHub query operators are not supported here.');
+  const words = (directRepo ? (view === 'orgs' ? directRepo.split('/')[0] : '') : q).split(/\s+/).filter(Boolean).map(word => `"${word}"`).join(' ');
   const parts = view === 'orgs' ? ['type:org', 'repos:>0'] : ['is:public', 'archived:false', 'fork:false', 'stars:>0'];
   if (words) parts.push(words);
+  if (directRepo && view !== 'orgs') parts.push(`repo:${directRepo}`);
   if (view !== 'orgs') {
     if (language) parts.push(`language:"${language}"`);
     if (topic) parts.push(`topic:${topic}`);

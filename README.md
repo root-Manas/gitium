@@ -12,7 +12,9 @@ Find useful GitHub projects and the organizations behind them. Browse by languag
 
 Start with **top projects** ranked by stars, forks or recent updates. Search by language, topic, owner and creation date, or browse organizations by followers and repository count. Every filtered page has a shareable URL.
 
-The **Essentials** collection explains what each selected tool is useful for and what to consider before using it. It is a curated starting point, with links to explore the code and find open issues.
+**Essentials** brings together more than **1,000 projects** across dozens of categories. Search instantly, filter by what you need, then explore the code or find an issue. The community catalog is adapted from [Awesome Selfhosted](https://github.com/awesome-selfhosted/awesome-selfhosted), with separately authored Gitium starter picks. [Catalog attribution and license](public/catalog/ATTRIBUTION.md).
+
+Explore updates as you search. One-click topic filters, language selection, repository links and shareable searches make it easier to narrow things down. Light and dark themes use the same compact layout.
 
 Your GitHub follows are your starting point. Gitium brings together the repositories they recently starred and shows exactly who found each one. When several people in your circle pick the same project, you can see the overlap. Follow or unfollow someone in Gitium and the change appears on GitHub too.
 
